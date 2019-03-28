@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Crabtopus
 {
@@ -22,16 +21,25 @@ namespace Crabtopus
                 }
             }
 
-            // Sample
-            Blob blob = blobs.First(x => x.Method == "GetPlayerQuests");
-            Console.WriteLine(blob.FullName);
-            if (blob.IsArray)
+            // Sample deck
+            // TODO: handle mythic edition (ex.: Teferi)
+            // TODO: handle transform cards name (ex.: Search for Azcanta)
+            Blob blob = blobs.First(x => x.Method == "GetDeckListsV3");
+            Deck[] decks = JsonConvert.DeserializeObject<Deck[]>(blob.Content);
+            List<long> deck = decks[0].MainDeck;
+
+            ScryfallCard[] scryfallCards = JsonConvert.DeserializeObject<ScryfallCard[]>(File.ReadAllText("scryfall.arena.json"));
+            for (int i = 0; i < deck.Count; i += 2)
             {
-                Console.WriteLine(JArray.Parse(blob.Content).ToString(Formatting.Indented));
-            }
-            else
-            {
-                Console.WriteLine(JObject.Parse(blob.Content).ToString(Formatting.Indented));
+                ScryfallCard card = scryfallCards.FirstOrDefault(x => x.ArenaId == deck[i]);
+                if (card is null)
+                {
+                    Console.WriteLine($"Unknown card: {deck[i]}");
+                }
+                else
+                {
+                    Console.WriteLine($"{deck[i + 1]} {card.Name} ({(card.Set == "dom" ? "DAR" : card.Set.ToUpper())}) {card.CollectorNumber}");
+                }
             }
         }
     }
