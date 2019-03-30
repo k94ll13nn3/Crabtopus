@@ -13,12 +13,7 @@ namespace Crabtopus
         public static async Task Main()
         {
             var logReader = new LogReader();
-            if (!logReader.ReadLog())
-            {
-                return;
-            }
-
-            Console.WriteLine($"Version: {logReader.Version}");
+            logReader.ReadLog();
 
             var services = new ServiceCollection();
             services.AddHttpClient("mtgarena", c => c.BaseAddress = logReader.AssetsUri);

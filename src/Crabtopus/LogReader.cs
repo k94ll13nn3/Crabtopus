@@ -19,13 +19,12 @@ namespace Crabtopus
 
         public string Endpoint { get; private set; }
 
-        public bool ReadLog()
+        public void ReadLog()
         {
             string logFilePath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low\Wizards Of The Coast\MTGA\output_log.txt";
             if (!File.Exists(logFilePath))
             {
-                Console.WriteLine($"Log file not found ({logFilePath}).");
-                return false;
+                throw new InvalidOperationException($"Log file not found ({logFilePath}).");
             }
 
             ReadOnlySpan<char> content = File.ReadAllText(logFilePath).AsSpan();
@@ -36,8 +35,6 @@ namespace Crabtopus
             Version = Regex.Match(endpointUri.PathAndQuery, @"\d+_\d+").Value;
             Endpoint = endpointUri.PathAndQuery;
             Blobs = GetBlobs(content);
-
-            return true;
         }
 
         private string GetEndpoint(in ReadOnlySpan<char> content)
@@ -88,6 +85,7 @@ namespace Crabtopus
                 currentIndex += length;
             }
 
+            // Take the last id for each blob.
             return blobs.GroupBy(b => b.Name).Select(g => g.OrderByDescending(x => x.Id).First()).ToList();
         }
 
