@@ -24,8 +24,8 @@ namespace Crabtopus
             await cardManager.InitializeCardsAsync();
             List<Card> cards = cardManager.Cards;
 
-            Blob blob = logReader.Blobs.First(x => x.Method == "GetDeckListsV3");
-            Deck[] decks = JsonConvert.DeserializeObject<Deck[]>(blob.Content);
+            Blob deckListsBlob = logReader.Blobs.First(x => x.Method == "GetDeckListsV3");
+            Deck[] decks = JsonConvert.DeserializeObject<Deck[]>(deckListsBlob.Content);
             List<long> cardsInDeck = decks[0].MainDeck;
 
             Console.WriteLine(decks[0].Name);
@@ -39,6 +39,24 @@ namespace Crabtopus
                 else
                 {
                     Console.WriteLine($"{cardsInDeck[i + 1]} {card.Title} ({card.Set}) {card.CollectorNumber}");
+                }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+            Blob playerCardsBlob = logReader.Blobs.First(x => x.Method == "GetPlayerCardsV3");
+            Dictionary<int, int> collection = JsonConvert.DeserializeObject<Dictionary<int, int>>(playerCardsBlob.Content);
+            Console.WriteLine($"Total cards in collection: {collection.Sum(x => x.Value)}");
+            foreach (KeyValuePair<int, int> cardInfo in collection)
+            {
+                Card card = cards.Find(x => x.Id == cardInfo.Key);
+                if (card is null)
+                {
+                    Console.WriteLine($"Unknown card: {cardInfo.Key}");
+                }
+                else
+                {
+                    Console.WriteLine($"{cardInfo.Value} {card.Title} ({card.Set}) {card.CollectorNumber}");
                 }
             }
         }
