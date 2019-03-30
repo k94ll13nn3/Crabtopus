@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -9,13 +10,6 @@ namespace Crabtopus
     {
         private const string Delimiter = "<== ";
         private const string EndpointDelimiter = "EndpointHashPath = ";
-        private readonly string _content;
-        private Uri _endpoint;
-
-        public LogReader(string content)
-        {
-            _content = content;
-        }
 
         public Uri AssetsUri { get; private set; }
 
@@ -25,14 +19,25 @@ namespace Crabtopus
 
         public string Endpoint { get; private set; }
 
-        public void ReadLog()
+        public bool ReadLog()
         {
-            ReadOnlySpan<char> content = _content.AsSpan();
-            _endpoint = new Uri(GetEndpoint(content));
-            AssetsUri = new Uri(_endpoint.Scheme + Uri.SchemeDelimiter + _endpoint.Host);
-            Version = Regex.Match(_endpoint.PathAndQuery, @"\d+_\d+").Value;
-            Endpoint = _endpoint.PathAndQuery;
+            string logFilePath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low\Wizards Of The Coast\MTGA\output_log.txt";
+            if (!File.Exists(logFilePath))
+            {
+                Console.WriteLine($"Log file not found ({logFilePath}).");
+                return false;
+            }
+
+            ReadOnlySpan<char> content = File.ReadAllText(logFilePath).AsSpan();
+
+            var endpointUri = new Uri(GetEndpoint(content));
+
+            AssetsUri = new Uri(endpointUri.Scheme + Uri.SchemeDelimiter + endpointUri.Host);
+            Version = Regex.Match(endpointUri.PathAndQuery, @"\d+_\d+").Value;
+            Endpoint = endpointUri.PathAndQuery;
             Blobs = GetBlobs(content);
+
+            return true;
         }
 
         private string GetEndpoint(in ReadOnlySpan<char> content)
