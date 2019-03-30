@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-
-namespace Crabtopus
+﻿namespace Crabtopus
 {
-    public class Deck
+    public class Card
     {
-        public string Name { get; set; }
+        public long Grpid { get; set; }
 
-        public List<long> MainDeck { get; set; }
+        public long TitleId { get; set; }
+
+        public string CollectorNumber { get; set; }
+
+        public string Set { get; set; }
     }
 }
