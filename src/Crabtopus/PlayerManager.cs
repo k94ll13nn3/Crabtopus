@@ -7,14 +7,14 @@ using Newtonsoft.Json;
 
 namespace Crabtopus
 {
-    public class Player
+    public class PlayerManager
     {
         private static readonly Regex _cardLineRegex = new Regex(@"(\d{1,2}) (.*?) \((\w+)\) (\w+)", RegexOptions.Compiled);
         private readonly CardManager _cardManager;
         private readonly Dictionary<Card, int> _collection;
         private Inventory _inventory;
 
-        public Player(CardManager cardManager)
+        public PlayerManager(CardManager cardManager)
         {
             _cardManager = cardManager;
             _collection = new Dictionary<Card, int>();
@@ -41,67 +41,68 @@ namespace Crabtopus
         {
             Deck newDeck = ParseDeckList(deckList);
             var missingCards = new Dictionary<Card, int>();
-            foreach (KeyValuePair<Card, int> card in newDeck.MainDeck)
+            foreach (DeckCard deckCard in newDeck.MainDeck)
             {
-                Card card2 = _cardManager.Cards.Find(x => x == card.Key);
-                if (card2.Rarity == 1)
+                Card card = _cardManager.Cards.Find(x => x.Set == deckCard.Set && x.CollectorNumber == deckCard.CollectorNumber);
+                if (card.Rarity == Rarity.BasicLand)
                 {
                     continue;
                 }
 
-                if (!_collection.ContainsKey(card.Key) || _collection[card.Key] < card.Value)
+                if (!_collection.ContainsKey(card) || _collection[card] < deckCard.Count)
                 {
-                    if (_collection.ContainsKey(card.Key) && _collection[card.Key] < card.Value)
+                    if (_collection.ContainsKey(card) && _collection[card] < deckCard.Count)
                     {
-                        IEnumerable<KeyValuePair<Card, int>> otherCard = _collection.Where(x => x.Key.Title == card.Key.Title && x.Key != card.Key);
-                        if (otherCard.Sum(x => x.Value) < card.Value - _collection[card.Key])
+                        IEnumerable<KeyValuePair<Card, int>> otherCard = _collection.Where(x => x.Key.Title == card.Title && x.Key != card);
+                        if (otherCard.Sum(x => x.Value) < deckCard.Count - _collection[card])
                         {
-                            missingCards.Add(card2, card.Value - _collection[card.Key]);
+                            missingCards.Add(card, deckCard.Count - _collection[card]);
                         }
                     }
                     else
                     {
-                        IEnumerable<KeyValuePair<Card, int>> otherCard = _collection.Where(x => x.Key.Title == card.Key.Title);
-                        if (otherCard.Sum(x => x.Value) < card.Value)
+                        IEnumerable<KeyValuePair<Card, int>> otherCard = _collection.Where(x => x.Key.Title == card.Title);
+                        if (otherCard.Sum(x => x.Value) < deckCard.Count)
                         {
-                            missingCards.Add(card2, card.Value);
+                            missingCards.Add(card, deckCard.Count);
                         }
                     }
                 }
             }
 
-            foreach (IGrouping<int, KeyValuePair<Card, int>> x in missingCards.GroupBy(x => x.Key.Rarity))
+            foreach (IGrouping<Rarity, KeyValuePair<Card, int>> x in missingCards.GroupBy(x => x.Key.Rarity))
             {
                 long wildcardForRarity = 0;
                 switch (x.Key)
                 {
-                    case 2:
+                    case Rarity.Common:
                         wildcardForRarity = _inventory.CommonWildcards;
                         break;
 
-                    case 3:
+                    case Rarity.Uncommon:
                         wildcardForRarity = _inventory.UncommonWildcards;
                         break;
 
-                    case 4:
+                    case Rarity.Rare:
                         wildcardForRarity = _inventory.RareWildcards;
                         break;
 
-                    case 5:
-                        wildcardForRarity = _inventory.MythicWildcards;
+                    case Rarity.MythicRare:
+                        wildcardForRarity = _inventory.MythicRareWildcards;
                         break;
                 }
                 Console.WriteLine($"{x.Key}: {x.Sum(z => z.Value)} ({wildcardForRarity})");
             }
 
-            return false;
+            return missingCards.Count > 0;
         }
 
         private Deck ParseDeckList(IEnumerable<string> deckList)
         {
             var deck = new Deck
             {
-                MainDeck = new Dictionary<Card, int>()
+                MainDeck = new List<DeckCard>(),
+                Sideboard = new List<DeckCard>(),
             };
 
             foreach (string line in deckList)
@@ -109,14 +110,18 @@ namespace Crabtopus
                 Match match = _cardLineRegex.Match(line);
                 if (match.Success)
                 {
-                    var card = new Card { Title = match.Groups[2].Value, Set = match.Groups[3].Value, CollectorNumber = match.Groups[4].Value };
-                    if (deck.MainDeck.ContainsKey(card))
+                    string collectorNumber = match.Groups[4].Value;
+                    string set = match.Groups[3].Value;
+                    DeckCard sameCardInDeck = deck.MainDeck.FirstOrDefault(x => x.Set == set && x.CollectorNumber == collectorNumber);
+                    if (sameCardInDeck is null)
                     {
-                        deck.MainDeck[card] += int.Parse(match.Groups[1].Value);
+                        var card = new DeckCard { CollectorNumber = collectorNumber, Set = set };
+                        card.Count = int.Parse(match.Groups[1].Value);
+                        deck.MainDeck.Add(card);
                     }
                     else
                     {
-                        deck.MainDeck[card] = int.Parse(match.Groups[1].Value);
+                        sameCardInDeck.Count += int.Parse(match.Groups[1].Value);
                     }
                 }
             }

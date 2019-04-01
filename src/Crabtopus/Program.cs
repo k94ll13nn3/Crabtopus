@@ -21,7 +21,7 @@ namespace Crabtopus
             var cardManager = new CardManager(logReader.Version, logReader.Endpoint, httpClientFactory);
             await cardManager.InitializeCardsAsync();
 
-            var player = new Player(cardManager);
+            var player = new PlayerManager(cardManager);
             player.LoadCollection(logReader.Blobs.First(x => x.Method == "GetPlayerCardsV3"));
             player.LoadInventory(logReader.Blobs.First(x => x.Method == "GetPlayerInventory"));
             player.CanCreateDeck(File.ReadAllLines("deck.txt"));

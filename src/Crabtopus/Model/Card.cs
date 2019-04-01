@@ -17,16 +17,38 @@ namespace Crabtopus.Model
 
         public string Title { get; set; }
 
-        public int Rarity { get; set; }
+        [JsonProperty("rarity")]
+        public int RarityValue { get; set; }
 
-        public static bool operator ==(Card left, Card right) => EqualityComparer<Card>.Default.Equals(left, right);
+        [JsonIgnore]
+        public Rarity Rarity
+        {
+            get
+            {
+                switch (RarityValue)
+                {
+                    case 2:
+                        return Rarity.Common;
 
-        public static bool operator !=(Card left, Card right) => !(left == right);
+                    case 3:
+                        return Rarity.Uncommon;
+
+                    case 4:
+                        return Rarity.Rare;
+
+                    case 5:
+                        return Rarity.MythicRare;
+                }
+
+                return Rarity.BasicLand;
+            }
+        }
 
         public override bool Equals(object obj) => Equals(obj as Card);
+        public bool Equals(Card other) => other != null && Id == other.Id && TitleId == other.TitleId && CollectorNumber == other.CollectorNumber && Set == other.Set && Title == other.Title && RarityValue == other.RarityValue && Rarity == other.Rarity;
+        public override int GetHashCode() => HashCode.Combine(Id, TitleId, CollectorNumber, Set, Title, RarityValue, Rarity);
 
-        public bool Equals(Card other) => other != null && CollectorNumber == other.CollectorNumber && Set == other.Set;
-
-        public override int GetHashCode() => HashCode.Combine(CollectorNumber, Set);
+        public static bool operator ==(Card left, Card right) => EqualityComparer<Card>.Default.Equals(left, right);
+        public static bool operator !=(Card left, Card right) => !(left == right);
     }
 }

@@ -4,8 +4,8 @@ namespace Crabtopus.Model
 {
     public class Deck
     {
-        public Dictionary<Card, int> MainDeck { get; set; }
+        public ICollection<DeckCard> MainDeck { get; set; }
 
-        public Dictionary<Card, int> Sideboard { get; set; }
+        public ICollection<DeckCard> Sideboard { get; set; }
     }
 }

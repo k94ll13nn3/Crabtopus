@@ -14,6 +14,6 @@ namespace Crabtopus.Model
         public long RareWildcards { get; set; }
 
         [JsonProperty("wcMythic")]
-        public long MythicWildcards { get; set; }
+        public long MythicRareWildcards { get; set; }
     }
 }
