@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Crabtopus
+namespace Crabtopus.Model
 {
     public class Card : IEquatable<Card>
     {

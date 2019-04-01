@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Crabtopus.Model;
 using Newtonsoft.Json;
 
 namespace Crabtopus

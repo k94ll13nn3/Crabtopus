@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Crabtopus
+namespace Crabtopus.Model
 {
     public class Inventory
     {

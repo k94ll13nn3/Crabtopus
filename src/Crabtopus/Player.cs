@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Crabtopus.Model;
 using Newtonsoft.Json;
 
 namespace Crabtopus
 {
     public class Player
     {
+        private static readonly Regex _cardLineRegex = new Regex(@"(\d{1,2}) (.*?) \((\w+)\) (\w+)", RegexOptions.Compiled);
         private readonly CardManager _cardManager;
         private readonly Dictionary<Card, int> _collection;
         private Inventory _inventory;
@@ -34,10 +37,10 @@ namespace Crabtopus
             _inventory = JsonConvert.DeserializeObject<Inventory>(inventoryBlob.Content);
         }
 
-        public bool CanCreateDeck(Deck newDeck)
+        public bool CanCreateDeck(IEnumerable<string> deckList)
         {
+            Deck newDeck = ParseDeckList(deckList);
             var missingCards = new Dictionary<Card, int>();
-            var c = _collection.Where(x => x.Key.Title == "Opt").ToList();
             foreach (KeyValuePair<Card, int> card in newDeck.MainDeck)
             {
                 Card card2 = _cardManager.Cards.Find(x => x == card.Key);
@@ -92,6 +95,33 @@ namespace Crabtopus
             }
 
             return false;
+        }
+
+        private Deck ParseDeckList(IEnumerable<string> deckList)
+        {
+            var deck = new Deck
+            {
+                MainDeck = new Dictionary<Card, int>()
+            };
+
+            foreach (string line in deckList)
+            {
+                Match match = _cardLineRegex.Match(line);
+                if (match.Success)
+                {
+                    var card = new Card { Title = match.Groups[2].Value, Set = match.Groups[3].Value, CollectorNumber = match.Groups[4].Value };
+                    if (deck.MainDeck.ContainsKey(card))
+                    {
+                        deck.MainDeck[card] += int.Parse(match.Groups[1].Value);
+                    }
+                    else
+                    {
+                        deck.MainDeck[card] = int.Parse(match.Groups[1].Value);
+                    }
+                }
+            }
+
+            return deck;
         }
     }
 }

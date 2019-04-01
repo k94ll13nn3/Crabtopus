@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Crabtopus
+namespace Crabtopus.Model
 {
     public class Manifest
     {

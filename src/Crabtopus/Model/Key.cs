@@ -1,4 +1,4 @@
-﻿namespace Crabtopus
+﻿namespace Crabtopus.Model
 {
     public class Key
     {

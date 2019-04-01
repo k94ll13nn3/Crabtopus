@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -21,13 +20,11 @@ namespace Crabtopus
 
             var cardManager = new CardManager(logReader.Version, logReader.Endpoint, httpClientFactory);
             await cardManager.InitializeCardsAsync();
-            List<Card> cards = cardManager.Cards;
 
             var player = new Player(cardManager);
             player.LoadCollection(logReader.Blobs.First(x => x.Method == "GetPlayerCardsV3"));
             player.LoadInventory(logReader.Blobs.First(x => x.Method == "GetPlayerInventory"));
-
-            player.CanCreateDeck(Deck.ParseDeckList(File.ReadAllLines("deck.txt")));
+            player.CanCreateDeck(File.ReadAllLines("deck.txt"));
         }
     }
 }
