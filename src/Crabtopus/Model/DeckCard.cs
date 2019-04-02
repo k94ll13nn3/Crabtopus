@@ -6,6 +6,8 @@
 
         public string Set { get; set; }
 
+        public Rarity Rarity { get; set; }
+
         public int Count { get; set; }
     }
 }
