@@ -12,15 +12,7 @@ namespace Crabtopus
         private const string Delimiter = "<== ";
         private const string EndpointDelimiter = "EndpointHashPath = ";
 
-        public Uri AssetsUri { get; private set; }
-
-        public List<Blob> Blobs { get; private set; }
-
-        public string Version { get; private set; }
-
-        public string Endpoint { get; private set; }
-
-        public void ReadLog()
+        public LogReader()
         {
             string logFilePath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low\Wizards Of The Coast\MTGA\output_log.txt";
             if (!File.Exists(logFilePath))
@@ -37,6 +29,14 @@ namespace Crabtopus
             Endpoint = endpointUri.PathAndQuery;
             Blobs = GetBlobs(content);
         }
+
+        public Uri AssetsUri { get; }
+
+        public List<Blob> Blobs { get; }
+
+        public string Version { get; }
+
+        public string Endpoint { get; }
 
         private string GetEndpoint(in ReadOnlySpan<char> content)
         {

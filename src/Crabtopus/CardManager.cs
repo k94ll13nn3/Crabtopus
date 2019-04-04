@@ -17,16 +17,16 @@ namespace Crabtopus
         private readonly string _endpoint;
         private readonly HttpClient _mtgarenaClient;
 
-        public CardManager(string version, string endpoint, IHttpClientFactory httpClientFactory)
+        public CardManager(LogReader logReader, IHttpClientFactory httpClientFactory)
         {
             _mtgarenaClient = httpClientFactory.CreateClient("mtgarena");
-            _version = version;
-            _endpoint = endpoint;
+            _version = logReader.Version;
+            _endpoint = logReader.Endpoint;
         }
 
         public List<Card> Cards { get; set; }
 
-        public async Task InitializeCardsAsync()
+        public async Task LoadCardsAsync()
         {
             if (!Directory.Exists(_version))
             {

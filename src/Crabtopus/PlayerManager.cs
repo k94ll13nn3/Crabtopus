@@ -14,10 +14,13 @@ namespace Crabtopus
         private readonly Dictionary<Card, int> _collection;
         private Wildcards _inventory;
 
-        public PlayerManager(CardManager cardManager)
+        public PlayerManager(CardManager cardManager, LogReader logReader)
         {
             _cardManager = cardManager;
             _collection = new Dictionary<Card, int>();
+
+            LoadCollection(logReader.Blobs.First(x => x.Method == "GetPlayerCardsV3"));
+            LoadInventory(logReader.Blobs.First(x => x.Method == "GetPlayerInventory"));
         }
 
         public void LoadCollection(Blob collectionBlob)
