@@ -13,6 +13,7 @@ namespace Crabtopus
         private readonly CardManager _cardManager;
         private readonly Dictionary<Card, int> _collection;
         private Wildcards _inventory;
+        private CombinedRankInfo _combinedRankInfo;
 
         public PlayerManager(CardManager cardManager, LogReader logReader)
         {
@@ -21,23 +22,12 @@ namespace Crabtopus
 
             LoadCollection(logReader.Blobs.First(x => x.Method == "GetPlayerCardsV3"));
             LoadInventory(logReader.Blobs.First(x => x.Method == "GetPlayerInventory"));
-        }
+            LoadCombinedRankInfo(logReader.Blobs.First(x => x.Method == "GetCombinedRankInfo"));
 
-        public void LoadCollection(Blob collectionBlob)
-        {
-            foreach (KeyValuePair<int, int> cardInfo in JsonConvert.DeserializeObject<Dictionary<int, int>>(collectionBlob.Content))
-            {
-                Card card = _cardManager.Cards.Find(x => x.Id == cardInfo.Key);
-                if (card != null)
-                {
-                    _collection.Add(card, cardInfo.Value);
-                }
-            }
-        }
-
-        public void LoadInventory(Blob inventoryBlob)
-        {
-            _inventory = JsonConvert.DeserializeObject<Wildcards>(inventoryBlob.Content);
+            Console.WriteLine("Player season statistics:");
+            Console.WriteLine($"{_combinedRankInfo.ConstructedMatchesWon}/{_combinedRankInfo.ConstructedMatchesTotal}");
+            Console.WriteLine();
+            Console.WriteLine();
         }
 
         public ValidationResult ValidateDeck(IEnumerable<string> deckList)
@@ -177,6 +167,28 @@ namespace Crabtopus
             Console.WriteLine($"MythicRare: {result.Wildcards.MythicRare} ({_inventory.MythicRare})");
 
             return result;
+        }
+
+        private void LoadCollection(Blob collectionBlob)
+        {
+            foreach (KeyValuePair<int, int> cardInfo in JsonConvert.DeserializeObject<Dictionary<int, int>>(collectionBlob.Content))
+            {
+                Card card = _cardManager.Cards.Find(x => x.Id == cardInfo.Key);
+                if (card != null)
+                {
+                    _collection.Add(card, cardInfo.Value);
+                }
+            }
+        }
+
+        private void LoadInventory(Blob inventoryBlob)
+        {
+            _inventory = JsonConvert.DeserializeObject<Wildcards>(inventoryBlob.Content);
+        }
+
+        private void LoadCombinedRankInfo(Blob inventoryBlob)
+        {
+            _combinedRankInfo = JsonConvert.DeserializeObject<CombinedRankInfo>(inventoryBlob.Content);
         }
 
         private Deck ParseDeckList(IEnumerable<string> deckList)
