@@ -25,7 +25,7 @@ namespace Crabtopus
             LoadCombinedRankInfo(logReader.Blobs.First(x => x.Method == "GetCombinedRankInfo"));
 
             Console.WriteLine("Player season statistics:");
-            Console.WriteLine($"{_combinedRankInfo.ConstructedMatchesWon}/{_combinedRankInfo.ConstructedMatchesTotal}");
+            Console.WriteLine($"{_combinedRankInfo.ConstructedMatchesWon}/{_combinedRankInfo.ConstructedMatchesTotal} ({_combinedRankInfo.ConstructedMatchesWon * 100.0 / _combinedRankInfo.ConstructedMatchesTotal:0.00}%)");
             Console.WriteLine();
             Console.WriteLine();
         }

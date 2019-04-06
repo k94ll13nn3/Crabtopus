@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Crabtopus.Model;
 
@@ -20,7 +21,18 @@ namespace Crabtopus
                 throw new InvalidOperationException($"Log file not found ({logFilePath}).");
             }
 
-            ReadOnlySpan<char> content = File.ReadAllText(logFilePath).AsSpan();
+            var builder = new StringBuilder();
+            using (var fileStream = new FileStream(logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 0x1000, FileOptions.SequentialScan))
+            using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
+            {
+                string line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    builder.AppendLine(line);
+                }
+            }
+
+            ReadOnlySpan<char> content = builder.ToString().AsSpan();
 
             var endpointUri = new Uri(GetEndpoint(content));
 

@@ -44,14 +44,16 @@ namespace Crabtopus
 
                 string cardsHash = null;
                 string localizationHash = null;
-                if (File.Exists(Path.Combine(_version, "cards.hash")))
+                string cardsHashPath = Path.Combine(_version, "cards.hash");
+                string localizationHashPath = Path.Combine(_version, "localization.hash");
+                if (File.Exists(cardsHashPath))
                 {
-                    cardsHash = File.ReadAllText(Path.Combine(_version, "cards.hash"));
+                    cardsHash = File.ReadAllText(cardsHashPath);
                 }
 
-                if (File.Exists(Path.Combine(_version, "localization.hash")))
+                if (File.Exists(localizationHashPath))
                 {
-                    localizationHash = File.ReadAllText(Path.Combine(_version, "localization.hash"));
+                    localizationHash = File.ReadAllText(localizationHashPath);
                 }
 
                 string cardsPath = Path.Combine(_version, "cards.json");
@@ -61,8 +63,8 @@ namespace Crabtopus
                 }
                 else
                 {
-                    File.WriteAllText(Path.Combine(_version, "cards.hash"), cardsAsset.Hash);
-                    File.WriteAllText(Path.Combine(_version, "localization.hash"), localizationsAsset.Hash);
+                    File.WriteAllText(cardsHashPath, cardsAsset.Hash);
+                    File.WriteAllText(localizationHashPath, localizationsAsset.Hash);
 
                     string cardsFileName = cardsAsset.Name;
                     byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(cardsFileName);
