@@ -23,9 +23,16 @@ namespace Crabtopus
             LoadCollection(logReader.Blobs.First(x => x.Method == "GetPlayerCardsV3"));
             LoadInventory(logReader.Blobs.First(x => x.Method == "GetPlayerInventory"));
             LoadCombinedRankInfo(logReader.Blobs.First(x => x.Method == "GetCombinedRankInfo"));
+        }
 
+        public void DisplaySeasonStatistics()
+        {
             Console.WriteLine("Player season statistics:");
-            Console.WriteLine($"{_combinedRankInfo.ConstructedMatchesWon}/{_combinedRankInfo.ConstructedMatchesTotal} ({_combinedRankInfo.ConstructedMatchesWon * 100.0 / _combinedRankInfo.ConstructedMatchesTotal:0.00}%)");
+            Console.WriteLine($"Rank: {_combinedRankInfo.ConstructedClass} {_combinedRankInfo.ConstructedLevel}");
+            Console.WriteLine($"Matches won: {_combinedRankInfo.ConstructedMatchesWon}");
+            Console.WriteLine($"Matches drawn: {_combinedRankInfo.ConstructedMatchesDrawn}");
+            Console.WriteLine($"Matches lost: {_combinedRankInfo.ConstructedMatchesLost}");
+            Console.WriteLine($"Total matches: {_combinedRankInfo.ConstructedMatchesTotal} ({_combinedRankInfo.ConstructedMatchesWon * 100.0 / _combinedRankInfo.ConstructedMatchesTotal:0.00}% W/L)");
             Console.WriteLine();
             Console.WriteLine();
         }
@@ -160,11 +167,14 @@ namespace Crabtopus
 
             Console.WriteLine();
             Console.WriteLine();
-            Console.WriteLine("Wildcards:");
+
+            Console.WriteLine("Wildcards needed:");
             Console.WriteLine($"Common: {result.Wildcards.Common} ({_inventory.Common})");
             Console.WriteLine($"Uncommon: {result.Wildcards.Uncommon} ({_inventory.Uncommon})");
             Console.WriteLine($"Rare: {result.Wildcards.Rare} ({_inventory.Rare})");
             Console.WriteLine($"MythicRare: {result.Wildcards.MythicRare} ({_inventory.MythicRare})");
+            Console.WriteLine();
+            Console.WriteLine();
 
             return result;
         }

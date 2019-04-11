@@ -1,5 +1,8 @@
-﻿namespace Crabtopus.Model
+﻿using System.Diagnostics;
+
+namespace Crabtopus.Model
 {
+    [DebuggerDisplay("{Name}")]
     public class Blob
     {
         public Blob(string data, bool isArray, string content)
