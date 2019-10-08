@@ -17,41 +17,32 @@ namespace Crabtopus
 
         public static async Task Main()
         {
-            bool sideboardLine = false;
             Context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-            IEnumerable<(string title, int id)> events = await GetEventsAsync();
-            foreach ((string title, int id) in events)
+            IEnumerable<Event> events = await GetEventsAsync();
+            foreach (Event @event in events)
             {
-                Console.WriteLine($"{id} {title}");
-            }
-
-            Console.WriteLine("---------------------------------------");
-            IEnumerable<(string title, int id)> decks = await GetDecksAsync(events.First().id);
-            foreach ((string title, int id) in decks)
-            {
-                Console.WriteLine($"{id} {title}");
-            }
-
-            Console.WriteLine("---------------------------------------");
-            foreach ((int count, string title, bool sideboard) in await GetDeckAsync(events.First().id, decks.First().id))
-            {
-                if (sideboard && !sideboardLine)
-                {
-                    Console.WriteLine();
-                    sideboardLine = true;
-                }
-
-                Console.WriteLine($"{count} {title}");
+                Console.WriteLine($"{@event.Id} {@event.Name} {@event.Date} {@event.Rating}");
             }
         }
 
-        private static async Task<IEnumerable<(string title, int id)>> GetEventsAsync()
+        private static async Task<IEnumerable<Event>> GetEventsAsync()
         {
             string address = $"https://{BaseUrl}/format?f=ST";
             IDocument document = await Context.OpenAsync(address);
-            const string cellSelector = ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(3) > tbody:nth-child(1) > tr > td:nth-child(1) > a:nth-child(1)";
-            IHtmlCollection<IElement> cells = document.QuerySelectorAll(cellSelector);
-            return cells.Select(m => (title: m.TextContent, id: int.Parse(HttpUtility.ParseQueryString(new Uri($"https://{BaseUrl}/{m.GetAttribute("href")}").Query)["e"], CultureInfo.InvariantCulture)));
+            const string eventsSelector = ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(3) > tbody:nth-child(1) > tr:not(:first-child)";
+            IHtmlCollection<IElement> eventsCells = document.QuerySelectorAll(eventsSelector);
+            var events = new List<Event>();
+            foreach (IElement cell in eventsCells)
+            {
+                IElement link = cell.QuerySelector("td:nth-child(1) > a");
+                int id = int.Parse(HttpUtility.ParseQueryString(new Uri($"https://{BaseUrl}/{link.GetAttribute("href")}").Query)["e"], CultureInfo.InvariantCulture);
+                string name = link.TextContent;
+                int rating = cell.QuerySelector("td:nth-child(2)").ChildElementCount;
+                string date = cell.QuerySelector("td:nth-child(3)").TextContent;
+                events.Add(new Event(id, name, date, rating));
+            }
+
+            return events;
         }
 
         private static async Task<IEnumerable<(string title, int id)>> GetDecksAsync(int eventId)
