@@ -19,9 +19,10 @@ namespace Crabtopus
         {
             Context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
             IEnumerable<Event> events = await GetEventsAsync();
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
             foreach (Event @event in events)
             {
-                Console.WriteLine($"{@event.Id} {@event.Name} {@event.Date} {@event.Rating}");
+                Console.WriteLine($"{@event.Id} {@event.Name} {@event.Date.ToShortDateString()} {new string('\u2605', @event.Rating)}");
                 IEnumerable<EventDeck> decks = await GetDecksAsync(@event.Id);
                 foreach (EventDeck deck in decks)
                 {
@@ -34,7 +35,9 @@ namespace Crabtopus
         {
             string address = $"https://{BaseUrl}/format?f=ST";
             IDocument document = await Context.OpenAsync(address);
-            const string eventsSelector = ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(3) > tbody:nth-child(1) > tr:not(:first-child)";
+            const string eventsSelector =
+                ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(3) > tbody:nth-child(1) > tr:not(:first-child)," +
+                ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:not(:first-child)";
             IHtmlCollection<IElement> eventsCells = document.QuerySelectorAll(eventsSelector);
             var events = new List<Event>();
             foreach (IElement cell in eventsCells)
@@ -43,11 +46,14 @@ namespace Crabtopus
                 int id = int.Parse(HttpUtility.ParseQueryString(new Uri($"https://{BaseUrl}/{link.GetAttribute("href")}").Query)["e"], CultureInfo.InvariantCulture);
                 string name = link.TextContent;
                 int rating = cell.QuerySelector("td:nth-child(2)").ChildElementCount;
-                string date = cell.QuerySelector("td:nth-child(3)").TextContent;
-                events.Add(new Event(id, name, date, rating));
+                DateTime date = DateTime.ParseExact(cell.QuerySelector("td:nth-child(3)").TextContent, "dd/MM/yy", CultureInfo.CurrentCulture);
+                if (!events.Select(x => x.Id).Contains(id))
+                {
+                    events.Add(new Event(id, name, date, rating));
+                }
             }
 
-            return events;
+            return events.OrderByDescending(x => x.Date);
         }
 
         private static async Task<IEnumerable<EventDeck>> GetDecksAsync(int eventId)

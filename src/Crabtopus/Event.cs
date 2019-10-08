@@ -1,8 +1,10 @@
+using System;
+
 namespace Crabtopus
 {
     internal class Event
     {
-        public Event(int id, string name, string date, int rating)
+        public Event(int id, string name, DateTime date, int rating)
         {
             Id = id;
             Name = name;
@@ -14,7 +16,7 @@ namespace Crabtopus
 
         public string Name { get; }
 
-        public string Date { get; }
+        public DateTime Date { get; }
 
         public int Rating { get; }
     }
