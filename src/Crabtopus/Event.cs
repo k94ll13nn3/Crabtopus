@@ -10,12 +10,12 @@ namespace Crabtopus
             Rating = rating;
         }
 
-        public int Id { get; set; }
+        public int Id { get; }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public string Date { get; set; }
+        public string Date { get; }
 
-        public int Rating { get; set; }
+        public int Rating { get; }
     }
 }

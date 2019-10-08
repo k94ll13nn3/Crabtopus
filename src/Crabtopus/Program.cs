@@ -22,6 +22,11 @@ namespace Crabtopus
             foreach (Event @event in events)
             {
                 Console.WriteLine($"{@event.Id} {@event.Name} {@event.Date} {@event.Rating}");
+                IEnumerable<EventDeck> decks = await GetDecksAsync(@event.Id);
+                foreach (EventDeck deck in decks)
+                {
+                    Console.WriteLine($"{deck.Id} {deck.Name} {deck.User} {deck.Placement}");
+                }
             }
         }
 
@@ -45,13 +50,24 @@ namespace Crabtopus
             return events;
         }
 
-        private static async Task<IEnumerable<(string title, int id)>> GetDecksAsync(int eventId)
+        private static async Task<IEnumerable<EventDeck>> GetDecksAsync(int eventId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&f=ST";
             IDocument document = await Context.OpenAsync(address);
-            const string cellSelector = "div.chosen_tr > div:nth-child(2) > a:nth-child(1), div.hover_tr > div:nth-child(2) > a:nth-child(1)";
+            const string cellSelector = "div.chosen_tr, div.hover_tr";
             IHtmlCollection<IElement> cells = document.QuerySelectorAll(cellSelector);
-            return cells.Select(m => (title: m.TextContent, id: int.Parse(HttpUtility.ParseQueryString(new Uri($"https://{BaseUrl}/{m.GetAttribute("href")}").Query)["d"], CultureInfo.InvariantCulture)));
+            var decks = new List<EventDeck>();
+            foreach (IElement cell in cells.Take(8))
+            {
+                string placement = cell.QuerySelector("div:nth-child(1)").TextContent;
+                IElement link = cell.QuerySelector("div:nth-child(2) > a");
+                int id = int.Parse(HttpUtility.ParseQueryString(new Uri($"https://{BaseUrl}/{link.GetAttribute("href")}").Query)["d"], CultureInfo.InvariantCulture);
+                string name = link.TextContent;
+                string user = cell.QuerySelector("div:nth-child(3)").TextContent;
+                decks.Add(new EventDeck(id, name, user, placement));
+            }
+
+            return decks;
         }
 
         private static async Task<IEnumerable<(int count, string title, bool sideboard)>> GetDeckAsync(int eventId, int deckId)
