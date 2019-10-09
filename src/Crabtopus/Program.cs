@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,19 +17,50 @@ namespace Crabtopus
 
         private static IBrowsingContext Context;
 
-        public static async Task Main()
+        public static int Main(string[] args)
         {
             Context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-            IEnumerable<Event> events = await GetEventsAsync();
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            foreach (Event @event in events)
+
+            var rootCommand = new RootCommand("command")
             {
-                Console.WriteLine($"{@event.Id} {@event.Name} {@event.Date.ToShortDateString()} {new string('\u2605', @event.Rating)}");
-                IEnumerable<EventDeck> eventDecks = await GetDecksAsync(@event.Id);
-                foreach (EventDeck eventDeck in eventDecks)
+                Description = "A mtg top 8 deck fetcher!"
+            };
+
+            var eventsCommand = new Command("events")
+            {
+                Description = "Get recent events.",
+                Handler = CommandHandler.Create(async () =>
                 {
-                    Console.WriteLine($"{eventDeck.Id} {eventDeck.Name} {eventDeck.User} {eventDeck.Placement}");
-                    Deck deck = await GetDeckAsync(@event.Id, eventDeck.Id);
+                    foreach (Event @event in await GetEventsAsync())
+                    {
+                        Console.WriteLine($"{@event.Id} {@event.Name} {@event.Date.ToShortDateString()} {new string('\u2605', @event.Rating)}");
+                    }
+                })
+            };
+
+            var decksCommand = new Command("decks")
+            {
+                Description = "Get decks for an event.",
+                Handler = CommandHandler.Create<int>(async (eventId) =>
+                {
+                    foreach (EventDeck eventDeck in await GetDecksAsync(eventId))
+                    {
+                        Console.WriteLine($"{eventDeck.Id} {eventDeck.Name} {eventDeck.User} {eventDeck.Placement}");
+                    }
+                })
+            };
+
+            decksCommand.Add(new Argument<int>("event-id") { Description = "The id of the event." });
+
+            var deckCommand = new Command("deck")
+            {
+                Description = "Get decks for an event.",
+                Handler = CommandHandler.Create<int, int>(async (eventId, deckId) =>
+                {
+                    Deck deck = await GetDeckAsync(eventId, deckId);
+                    Console.WriteLine(deck.Name);
+                    Console.WriteLine("----------------------");
                     foreach (Card card in deck.Maindeck)
                     {
                         Console.WriteLine($"{card.Count} {card.Name}");
@@ -38,9 +71,17 @@ namespace Crabtopus
                     {
                         Console.WriteLine($"{card.Count} {card.Name}");
                     }
-                    return;
-                }
-            }
+                })
+            };
+
+            deckCommand.Add(new Argument<int>("event-id") { Description = "The id of the deck." });
+            deckCommand.Add(new Argument<int>("deck-id") { Description = "The id of the event." });
+
+            rootCommand.Add(eventsCommand);
+            rootCommand.Add(decksCommand);
+            rootCommand.Add(deckCommand);
+
+            return rootCommand.InvokeAsync(args).Result;
         }
 
         private static async Task<IEnumerable<Event>> GetEventsAsync()
