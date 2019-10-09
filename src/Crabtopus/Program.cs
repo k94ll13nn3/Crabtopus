@@ -23,10 +23,22 @@ namespace Crabtopus
             foreach (Event @event in events)
             {
                 Console.WriteLine($"{@event.Id} {@event.Name} {@event.Date.ToShortDateString()} {new string('\u2605', @event.Rating)}");
-                IEnumerable<EventDeck> decks = await GetDecksAsync(@event.Id);
-                foreach (EventDeck deck in decks)
+                IEnumerable<EventDeck> eventDecks = await GetDecksAsync(@event.Id);
+                foreach (EventDeck eventDeck in eventDecks)
                 {
-                    Console.WriteLine($"{deck.Id} {deck.Name} {deck.User} {deck.Placement}");
+                    Console.WriteLine($"{eventDeck.Id} {eventDeck.Name} {eventDeck.User} {eventDeck.Placement}");
+                    Deck deck = await GetDeckAsync(@event.Id, eventDeck.Id);
+                    foreach (Card card in deck.Maindeck)
+                    {
+                        Console.WriteLine($"{card.Count} {card.Name}");
+                    }
+
+                    Console.WriteLine();
+                    foreach (Card card in deck.Sideboard)
+                    {
+                        Console.WriteLine($"{card.Count} {card.Name}");
+                    }
+                    return;
                 }
             }
         }
@@ -76,7 +88,7 @@ namespace Crabtopus
             return decks;
         }
 
-        private static async Task<IEnumerable<(int count, string title, bool sideboard)>> GetDeckAsync(int eventId, int deckId)
+        private static async Task<Deck> GetDeckAsync(int eventId, int deckId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&d={deckId}&f=ST";
             IDocument document = await Context.OpenAsync(address);
@@ -85,13 +97,11 @@ namespace Crabtopus
             IHtmlCollection<IElement> mainDeckCells = document.QuerySelectorAll(mainDeckSelector);
             IHtmlCollection<IElement> sideboardCells = document.QuerySelectorAll(sideboardSelector);
 
-            const string nameSelector = ".S16";
-            string nameCells = document.QuerySelectorAll(nameSelector).Select(m => m.TextContent).First();
+            string name = document.QuerySelector("div.chosen_tr").QuerySelector("div:nth-child(2) > a").TextContent;
+            IEnumerable<Card> maindeck = mainDeckCells.Select(m => new Card((int)char.GetNumericValue(m.TextContent[0]), m.TextContent[1..].Trim()));
+            IEnumerable<Card> sideboard = sideboardCells.Select(m => new Card((int)char.GetNumericValue(m.TextContent[0]), m.TextContent[1..].Trim()));
 
-            Console.WriteLine(nameCells);
-
-            return mainDeckCells.Select(m => (count: (int)char.GetNumericValue(m.TextContent[0]), title: m.TextContent[1..].Trim(), sideboard: false))
-                .Concat(sideboardCells.Select(m => (count: (int)char.GetNumericValue(m.TextContent[0]), title: m.TextContent[1..].Trim(), sideboard: true)));
+            return new Deck(name, maindeck, sideboard);
         }
     }
 }
