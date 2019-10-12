@@ -1,4 +1,4 @@
-namespace Crabtopus.Core.Model
+namespace Crabtopus.App.Model
 {
     public class Card
     {

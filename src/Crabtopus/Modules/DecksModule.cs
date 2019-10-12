@@ -3,8 +3,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Crabtopus.Core.Model;
-using Crabtopus.Core.Services;
+using Crabtopus.App.Model;
+using Crabtopus.App.Services;
 using Discord.Commands;
 using Discord.Rest;
 

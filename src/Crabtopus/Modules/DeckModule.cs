@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Crabtopus.Core.Model;
-using Crabtopus.Core.Services;
+using Crabtopus.App.Model;
+using Crabtopus.App.Services;
 using Discord.Commands;
 using Discord.Rest;
 
@@ -12,10 +12,12 @@ namespace Crabtopus.App.Modules
     public class DeckModule : ModuleBase<SocketCommandContext>
     {
         private readonly FetchService _fetchService;
+        private readonly CardsService _cardsService;
 
-        public DeckModule(FetchService fetchService)
+        public DeckModule(FetchService fetchService, CardsService cardsService)
         {
             _fetchService = fetchService;
+            _cardsService = cardsService;
         }
 
         [Command("deck"), Alias("d")]
@@ -30,13 +32,15 @@ namespace Crabtopus.App.Modules
                 builder.AppendLine("```");
                 foreach (Card card in deck.Maindeck)
                 {
-                    builder.AppendLine($"{card.Count} {card.Name}");
+                    CardData cardData = _cardsService.Cards.Find(x => x.Title == card.Name && x.CollectorNumber != "0");
+                    builder.AppendLine($"{card.Count} {card.Name} ({cardData.Set}) {cardData.CollectorNumber}");
                 }
 
                 builder.AppendLine("");
                 foreach (Card card in deck.Sideboard)
                 {
-                    builder.AppendLine($"{card.Count} {card.Name}");
+                    CardData cardData = _cardsService.Cards.Find(x => x.Title == card.Name && x.CollectorNumber != "0");
+                    builder.AppendLine($"{card.Count} {card.Name} ({cardData.Set}) {cardData.CollectorNumber}");
                 }
 
                 builder.AppendLine("```");

@@ -1,6 +1,6 @@
 using System;
 
-namespace Crabtopus.Core.Model
+namespace Crabtopus.App.Model
 {
     public class EventInfo
     {

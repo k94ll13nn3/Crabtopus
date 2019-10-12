@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.Web;
 using AngleSharp;
 using AngleSharp.Dom;
-using Crabtopus.Core.Model;
+using Crabtopus.App.Model;
 
-namespace Crabtopus.Core.Services
+namespace Crabtopus.App.Services
 {
     public class FetchService
     {

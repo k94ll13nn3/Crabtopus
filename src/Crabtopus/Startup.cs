@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Crabtopus.App.Services;
-using Crabtopus.Core.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -57,7 +56,10 @@ namespace Crabtopus.App
             services.AddSingleton<CommandHandler>();
             services.AddSingleton<StartupService>();
             services.AddSingleton<LoggingService>();
+            services.AddSingleton<CardsService>();
             services.AddSingleton(Configuration);
+
+            services.AddHttpClient("mtgarena", c => c.BaseAddress = new Uri(Configuration["AssetsUri"]));
 
             ServiceProvider provider = services.BuildServiceProvider();
             provider.GetRequiredService<LoggingService>();
