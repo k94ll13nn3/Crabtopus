@@ -5,6 +5,7 @@ using Crabtopus.Core.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,10 +15,17 @@ namespace Crabtopus.App
     {
         public Startup()
         {
-            Configuration = new ConfigurationBuilder()
+            IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("appsettings.json")
-                .Build();
+                .AddJsonFile("appsettings.json");
+
+            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (environment == EnvironmentName.Development)
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
+            Configuration = builder.Build();
         }
 
         public IConfigurationRoot Configuration { get; }
