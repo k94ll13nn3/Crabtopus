@@ -30,6 +30,7 @@ namespace Crabtopus.App.Services
 
         public List<CardData> Cards { get; private set; } = new List<CardData>();
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2234", Justification = "Relative URIs")]
         public async Task LoadCardsAsync()
         {
             if (!Directory.Exists(_version))
