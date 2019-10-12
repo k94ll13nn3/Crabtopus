@@ -1,6 +1,6 @@
-namespace Crabtopus
+namespace Crabtopus.Core
 {
-    internal class EventDeck
+    public class EventDeck
     {
         public EventDeck(int id, string name, string user, string placement)
         {

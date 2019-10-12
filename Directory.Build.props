@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
-    <NoWarn>RCS1090;CA2007</NoWarn>
+    <NoWarn>RCS1090;CA2007;RCS1197</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

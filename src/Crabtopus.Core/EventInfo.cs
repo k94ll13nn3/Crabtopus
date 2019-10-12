@@ -1,10 +1,10 @@
 using System;
 
-namespace Crabtopus
+namespace Crabtopus.Core
 {
-    internal class Event
+    public class EventInfo
     {
-        public Event(int id, string name, DateTime date, int rating)
+        public EventInfo(int id, string name, DateTime date, int rating)
         {
             Id = id;
             Name = name;

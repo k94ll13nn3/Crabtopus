@@ -1,6 +1,6 @@
-namespace Crabtopus
+namespace Crabtopus.Core
 {
-    internal class Card
+    public class Card
     {
         public Card(int count, string name)
         {
