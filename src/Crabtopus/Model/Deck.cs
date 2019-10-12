@@ -1,11 +1,20 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace Crabtopus.Model
+namespace Crabtopus.App.Model
 {
     public class Deck
     {
-        public ICollection<DeckCard> MainDeck { get; set; } = new List<DeckCard>();
+        public Deck(string name, IEnumerable<Card> maindeck, IEnumerable<Card> sideboard)
+        {
+            Name = name;
+            Maindeck = maindeck;
+            Sideboard = sideboard;
+        }
 
-        public ICollection<DeckCard> Sideboard { get; set; } = new List<DeckCard>();
+        public string Name { get; }
+
+        public IEnumerable<Card> Maindeck { get; }
+
+        public IEnumerable<Card> Sideboard { get; }
     }
 }

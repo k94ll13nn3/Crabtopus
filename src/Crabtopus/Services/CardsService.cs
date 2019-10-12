@@ -6,26 +6,31 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Crabtopus.Model;
+using Crabtopus.App.Model;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
-namespace Crabtopus
+namespace Crabtopus.App.Services
 {
-    public class CardManager
+    public class CardsService
     {
         private readonly string _version;
         private readonly string _endpoint;
         private readonly HttpClient _mtgarenaClient;
 
-        public CardManager(LogReader logReader, IHttpClientFactory httpClientFactory)
+        public CardsService(IConfigurationRoot config, IHttpClientFactory httpClientFactory)
         {
+            _ = config ?? throw new ArgumentNullException(nameof(config));
+            _ = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+
             _mtgarenaClient = httpClientFactory.CreateClient("mtgarena");
-            _version = logReader.Version;
-            _endpoint = logReader.Endpoint;
+            _version = config["Version"];
+            _endpoint = config["Endpoint"];
         }
 
-        public List<Card> Cards { get; set; }
+        public List<CardData> Cards { get; private set; } = new List<CardData>();
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2234", Justification = "Relative URIs")]
         public async Task LoadCardsAsync()
         {
             if (!Directory.Exists(_version))
@@ -39,8 +44,8 @@ namespace Crabtopus
                 byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync($"Manifest_{hash}.mtga");
                 string uncompressedManifest = Unzip(compressedManifest);
                 Manifest manifest = JsonConvert.DeserializeObject<Manifest>(uncompressedManifest);
-                Asset cardsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_cards_"));
-                Asset localizationsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_loc_"));
+                Asset cardsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_cards_", StringComparison.Ordinal));
+                Asset localizationsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_loc_", StringComparison.Ordinal));
 
                 string cardsHash = null;
                 string localizationHash = null;
@@ -59,7 +64,7 @@ namespace Crabtopus
                 string cardsPath = Path.Combine(_version, "cards.json");
                 if (File.Exists(cardsPath) && cardsHash == cardsAsset.Hash && localizationHash == localizationsAsset.Hash)
                 {
-                    Cards = JsonConvert.DeserializeObject<List<Card>>(File.ReadAllText(cardsPath));
+                    Cards = JsonConvert.DeserializeObject<List<CardData>>(File.ReadAllText(cardsPath));
                 }
                 else
                 {
@@ -69,7 +74,7 @@ namespace Crabtopus
                     string cardsFileName = cardsAsset.Name;
                     byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(cardsFileName);
                     string uncompressedCards = Unzip(compressedCards);
-                    List<Card> cards = JsonConvert.DeserializeObject<List<Card>>(uncompressedCards);
+                    List<CardData> cards = JsonConvert.DeserializeObject<List<CardData>>(uncompressedCards);
 
                     string localizationsFileName = localizationsAsset.Name;
                     byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(localizationsFileName);
@@ -78,7 +83,7 @@ namespace Crabtopus
                         .DeserializeObject<List<Localization>>(uncompressedLocalizations)
                         .Find(x => x.Langkey == "EN");
 
-                    foreach (Card card in cards)
+                    foreach (CardData card in cards)
                     {
                         card.Title = englishLocalization.Keys.Find(x => x.Id == card.TitleId)?.Text;
                     }
@@ -92,11 +97,11 @@ namespace Crabtopus
                 string cardsPath = Path.Combine(_version, "cards.json");
                 if (File.Exists(cardsPath))
                 {
-                    Cards = JsonConvert.DeserializeObject<List<Card>>(File.ReadAllText(cardsPath));
+                    Cards = JsonConvert.DeserializeObject<List<CardData>>(File.ReadAllText(cardsPath));
                 }
                 else
                 {
-                    throw new InvalidOperationException("Cannot read cards.", e);
+                    throw new InvalidOperationException(Messages.CardFetchingError, e);
                 }
             }
         }

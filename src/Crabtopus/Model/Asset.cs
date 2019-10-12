@@ -1,4 +1,4 @@
-﻿namespace Crabtopus.Model
+﻿namespace Crabtopus.App.Model
 {
     public class Asset
     {
