@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Crabtopus.Core
+namespace Crabtopus.Core.Model
 {
     public class Deck
     {

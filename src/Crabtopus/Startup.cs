@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Crabtopus.App.Services;
-using Crabtopus.Core;
+using Crabtopus.Core.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;

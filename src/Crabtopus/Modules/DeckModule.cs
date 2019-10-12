@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Crabtopus.Core;
+using Crabtopus.Core.Model;
+using Crabtopus.Core.Services;
 using Discord.Commands;
 using Discord.Rest;
 
