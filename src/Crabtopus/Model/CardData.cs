@@ -26,13 +26,9 @@ namespace Crabtopus.App.Model
                 return RarityValue switch
                 {
                     2 => Rarity.Common,
-
                     3 => Rarity.Uncommon,
-
                     4 => Rarity.Rare,
-
                     5 => Rarity.MythicRare,
-
                     _ => Rarity.BasicLand,
                 };
             }

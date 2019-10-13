@@ -79,8 +79,8 @@ namespace Crabtopus.App.Services
                     string localizationsFileName = localizationsAsset.Name;
                     byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(localizationsFileName);
                     string uncompressedLocalizations = Unzip(compressedLocalizations);
-                    Localization englishLocalization = JsonConvert
-                        .DeserializeObject<List<Localization>>(uncompressedLocalizations)
+                    LocalizationData englishLocalization = JsonConvert
+                        .DeserializeObject<List<LocalizationData>>(uncompressedLocalizations)
                         .Find(x => x.Langkey == "EN");
 
                     foreach (CardData card in cards)

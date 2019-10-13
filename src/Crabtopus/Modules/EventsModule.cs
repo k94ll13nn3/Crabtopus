@@ -25,12 +25,12 @@ namespace Crabtopus.App.Modules
         public async Task GetEventsAsync()
         {
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
-            IEnumerable<EventInfo> eventInfos = await _fetchService.GetEventsAsync();
+            IEnumerable<EventData> eventInfos = await _fetchService.GetEventsAsync();
             var builder = new StringBuilder();
             if (eventInfos.Any())
             {
                 builder.AppendLine("```");
-                foreach (EventInfo eventInfo in eventInfos)
+                foreach (EventData eventInfo in eventInfos)
                 {
                     builder.AppendLine($"{eventInfo.Id} {eventInfo.Date.ToShortDateString()} {new string('*', eventInfo.Rating).PadRight(3, '\u00A0')} {eventInfo.Name}");
                 }
@@ -49,12 +49,12 @@ namespace Crabtopus.App.Modules
         public async Task GetMajorEventsAsync()
         {
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
-            IEnumerable<EventInfo> eventInfos = await _fetchService.GetEventsAsync();
+            IEnumerable<EventData> eventInfos = await _fetchService.GetEventsAsync();
             var builder = new StringBuilder();
             if (eventInfos.Any())
             {
                 builder.AppendLine("```");
-                foreach (EventInfo eventInfo in eventInfos.Where(x => x.Rating == 3))
+                foreach (EventData eventInfo in eventInfos.Where(x => x.Rating == 3))
                 {
                     builder.AppendLine($"{eventInfo.Id} {eventInfo.Date.ToShortDateString()} {new string('*', eventInfo.Rating).PadRight(3, ' ')} {eventInfo.Name}");
                 }
