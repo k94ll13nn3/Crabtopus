@@ -24,10 +24,49 @@ namespace Crabtopus.App.Modules
         }
 
         [Command("deck"), Alias("d")]
-        [Summary("Affiche le decks spécifié.")]
-        public async Task GetDecksAsync(int eventId, int deckId)
+        [Summary("Affiche le deck spécifié.")]
+        public async Task GetDeckAsync(int eventId, int deckId)
         {
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
+            await GetDeckInternalAsync(eventId, deckId, msg);
+        }
+
+        [Command("top1deck"), Alias("td")]
+        [Summary("Affiche le deck top1 du tournoi spécifié.")]
+        public async Task GetDeckAsync(int eventId)
+        {
+            RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
+            (_, IEnumerable<EventDeck> decks) = await _fetchService.GetDecksAsync(eventId);
+            if (decks.Any())
+            {
+                await GetDeckInternalAsync(eventId, decks.First().Id, msg);
+                return;
+            }
+
+            await msg.ModifyAsync(m => m.Content = Messages.NoData);
+        }
+
+        [Command("lasttop1deck"), Alias("ltd")]
+        [Summary("Affiche le deck top1 du dernier tournoi standard.")]
+        public async Task GetDeckAsync()
+        {
+            RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
+            (_, IEnumerable<EventData> events) = await _fetchService.GetEventsAsync();
+            if (events.Any())
+            {
+                (_, IEnumerable<EventDeck> decks) = await _fetchService.GetDecksAsync(events.First().Id);
+                if (decks.Any())
+                {
+                    await GetDeckInternalAsync(events.First().Id, decks.First().Id, msg);
+                    return;
+                }
+            }
+
+            await msg.ModifyAsync(m => m.Content = Messages.NoData);
+        }
+
+        private async Task GetDeckInternalAsync(int eventId, int deckId, RestUserMessage msg)
+        {
             (string address, Deck deck) = await _fetchService.GetDeckAsync(eventId, deckId);
             var builder = new StringBuilder();
             var list = new StringBuilder();
