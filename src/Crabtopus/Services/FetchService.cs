@@ -21,7 +21,7 @@ namespace Crabtopus.App.Services
             _context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
         }
 
-        public async Task<IEnumerable<EventData>> GetEventsAsync()
+        public async Task<(string address, IEnumerable<EventData> data)> GetEventsAsync()
         {
             string address = $"https://{BaseUrl}/format?f=ST";
             IDocument document = await _context.OpenAsync(address);
@@ -43,10 +43,10 @@ namespace Crabtopus.App.Services
                 }
             }
 
-            return events.OrderByDescending(x => x.Date);
+            return (address, events.OrderByDescending(x => x.Date));
         }
 
-        public async Task<IEnumerable<EventDeck>> GetDecksAsync(int eventId)
+        public async Task<(string address, IEnumerable<EventDeck> data)> GetDecksAsync(int eventId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&f=ST";
             IDocument document = await _context.OpenAsync(address);
@@ -66,10 +66,10 @@ namespace Crabtopus.App.Services
                 }
             }
 
-            return decks;
+            return (address, decks);
         }
 
-        public async Task<Deck> GetDeckAsync(int eventId, int deckId)
+        public async Task<(string address, Deck data)> GetDeckAsync(int eventId, int deckId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&d={deckId}&f=ST";
             IDocument document = await _context.OpenAsync(address);
@@ -84,11 +84,11 @@ namespace Crabtopus.App.Services
                 IEnumerable<Card> maindeck = mainDeckCells.Select(m => new Card((int)char.GetNumericValue(m.TextContent[0]), m.TextContent[1..].Trim()));
                 IEnumerable<Card> sideboard = sideboardCells.Select(m => new Card((int)char.GetNumericValue(m.TextContent[0]), m.TextContent[1..].Trim()));
 
-                return new Deck(name, maindeck, sideboard);
+                return (address, new Deck(name, maindeck, sideboard));
             }
             else
             {
-                return null;
+                return (null, null);
             }
         }
     }
