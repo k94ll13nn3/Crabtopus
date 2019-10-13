@@ -8,6 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.1.1" />
+    <PackageReference Include="MinVer" Version="2.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Tababular" Version="3.0.1" />
     <PackageReference Include="AngleSharp" Version="0.13.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
@@ -16,6 +20,13 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+
+  <!-- MinVer properties -->
+  <PropertyGroup>
+    <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleasePhase>ci</MinVerDefaultPreReleasePhase>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Update="appsettings.json">
