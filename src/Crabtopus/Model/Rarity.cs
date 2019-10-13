@@ -2,10 +2,11 @@
 {
     public enum Rarity
     {
-        BasicLand,
-        Common,
-        Uncommon,
-        Rare,
-        MythicRare,
+        None = 0,
+        BasicLand = 1,
+        Common = 2,
+        Uncommon = 3,
+        Rare = 4,
+        MythicRare = 5,
     }
 }
