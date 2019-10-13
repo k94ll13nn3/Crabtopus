@@ -25,6 +25,26 @@ namespace Crabtopus.App.Modules
         public async Task GetDecksAsync(int eventId)
         {
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
+            await GetDecksInternalAsync(eventId, msg);
+        }
+
+        [Command("lastdecks"), Alias("led")]
+        [Summary("Affiche les decks du dernier tournoi standard.")]
+        public async Task GetDecksAsync()
+        {
+            RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
+            (_, IEnumerable<EventData> events) = await _fetchService.GetEventsAsync();
+            if (events.Any())
+            {
+                await GetDecksInternalAsync(events.First().Id, msg);
+                return;
+            }
+
+            await msg.ModifyAsync(m => m.Content = Messages.NoData);
+        }
+
+        private async Task GetDecksInternalAsync(int eventId, RestUserMessage msg)
+        {
             (string address, IEnumerable<EventDeck> eventDecks) = await _fetchService.GetDecksAsync(eventId);
             var builder = new StringBuilder();
             if (eventDecks.Any())
