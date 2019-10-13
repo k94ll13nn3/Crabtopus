@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Crabtopus.App.Model;
@@ -25,15 +26,17 @@ namespace Crabtopus.App.Modules
         public async Task GetDecksAsync(int eventId, int deckId)
         {
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
-            Deck deck = await _fetchService.GetDeckAsync(eventId, deckId);
+            (string address, Deck deck) = await _fetchService.GetDeckAsync(eventId, deckId);
             var builder = new StringBuilder();
             if (deck != null)
             {
+                builder.AppendLine(address);
                 builder.AppendLine("```");
                 foreach (Card card in deck.Maindeck)
                 {
-                    CardData cardData = _cardsService.Cards.Find(x => x.Title == card.Name && x.CollectorNumber != "0");
-                    builder.AppendLine($"{card.Count} {card.Name} ({cardData.Set}) {cardData.CollectorNumber}");
+                    string name = card.Name.Replace("/", "//", StringComparison.Ordinal);
+                    CardData cardData = _cardsService.Cards.Find(x => x.Title == name && x.CollectorNumber != "0");
+                    builder.AppendLine($"{card.Count} {name} ({cardData.Set}) {cardData.CollectorNumber}");
                 }
 
                 builder.AppendLine("");

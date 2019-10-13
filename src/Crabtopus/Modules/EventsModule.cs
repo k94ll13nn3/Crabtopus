@@ -25,10 +25,11 @@ namespace Crabtopus.App.Modules
         public async Task GetEventsAsync()
         {
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
-            IEnumerable<EventData> eventInfos = await _fetchService.GetEventsAsync();
+            (string address, IEnumerable<EventData> eventInfos) = await _fetchService.GetEventsAsync();
             var builder = new StringBuilder();
             if (eventInfos.Any())
             {
+                builder.AppendLine(address);
                 builder.AppendLine("```");
                 foreach (EventData eventInfo in eventInfos)
                 {
@@ -49,10 +50,11 @@ namespace Crabtopus.App.Modules
         public async Task GetMajorEventsAsync()
         {
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
-            IEnumerable<EventData> eventInfos = await _fetchService.GetEventsAsync();
+            (string address, IEnumerable<EventData> eventInfos) = await _fetchService.GetEventsAsync();
             var builder = new StringBuilder();
             if (eventInfos.Any())
             {
+                builder.AppendLine(address);
                 builder.AppendLine("```");
                 foreach (EventData eventInfo in eventInfos.Where(x => x.Rating == 3))
                 {

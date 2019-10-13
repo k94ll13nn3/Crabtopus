@@ -25,10 +25,11 @@ namespace Crabtopus.App.Modules
         public async Task GetDecksAsync(int eventId)
         {
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
-            IEnumerable<EventDeck> eventDecks = await _fetchService.GetDecksAsync(eventId);
+            (string address, IEnumerable<EventDeck> eventDecks) = await _fetchService.GetDecksAsync(eventId);
             var builder = new StringBuilder();
             if (eventDecks.Any())
             {
+                builder.AppendLine(address);
                 builder.AppendLine("```");
                 int placementSize = eventDecks.Max(x => x.Placement.Length);
                 foreach (EventDeck eventDeck in eventDecks)
