@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -28,25 +30,44 @@ namespace Crabtopus.App.Modules
             RestUserMessage msg = await Context.Channel.SendMessageAsync(Messages.Fetching);
             (string address, Deck deck) = await _fetchService.GetDeckAsync(eventId, deckId);
             var builder = new StringBuilder();
+            var list = new StringBuilder();
+            var colors = new HashSet<CardColor>();
+            var wildcards = new Wildcards();
             if (deck != null)
             {
-                builder.AppendLine(address);
-                builder.AppendLine("```");
+                list.AppendLine("```");
                 foreach (Card card in deck.Maindeck)
                 {
                     string name = card.Name.Replace("/", "//", StringComparison.Ordinal);
                     CardData cardData = _cardsService.Cards.Find(x => x.Title == name && x.CollectorNumber != "0");
-                    builder.AppendLine($"{card.Count} {name} ({cardData.Set}) {cardData.CollectorNumber}");
+                    list.AppendLine($"{card.Count} {name} ({cardData.Set}) {cardData.CollectorNumber}");
+
+                    wildcards.Add(card.Count, cardData.Rarity);
+                    foreach (CardColor color in cardData.Colors)
+                    {
+                        colors.Add(color);
+                    }
                 }
 
-                builder.AppendLine("");
+                list.AppendLine("");
                 foreach (Card card in deck.Sideboard)
                 {
                     CardData cardData = _cardsService.Cards.Find(x => x.Title == card.Name && x.CollectorNumber != "0");
-                    builder.AppendLine($"{card.Count} {card.Name} ({cardData.Set}) {cardData.CollectorNumber}");
+                    list.AppendLine($"{card.Count} {card.Name} ({cardData.Set}) {cardData.CollectorNumber}");
+
+                    wildcards.Add(card.Count, cardData.Rarity);
+                    foreach (CardColor color in cardData.Colors)
+                    {
+                        colors.Add(color);
+                    }
                 }
 
-                builder.AppendLine("```");
+                list.AppendLine("```");
+
+                builder.AppendLine(address);
+                builder.AppendLine($"**{deck.Name}** {string.Concat(colors.OrderBy(x => x).Select(Emotes.Convert))}");
+                builder.AppendLine(wildcards.ToString());
+                builder.AppendLine(list.ToString());
             }
             else
             {

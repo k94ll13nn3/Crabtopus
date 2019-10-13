@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Crabtopus.App.Model
 {
@@ -15,23 +16,9 @@ namespace Crabtopus.App.Model
 
         public string Title { get; set; }
 
-        [JsonProperty("rarity")]
-        public int RarityValue { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227", Justification = "Needed for deserialization.")]
+        public List<CardColor> Colors { get; set; }
 
-        [JsonIgnore]
-        public Rarity Rarity
-        {
-            get
-            {
-                return RarityValue switch
-                {
-                    2 => Rarity.Common,
-                    3 => Rarity.Uncommon,
-                    4 => Rarity.Rare,
-                    5 => Rarity.MythicRare,
-                    _ => Rarity.BasicLand,
-                };
-            }
-        }
+        public Rarity Rarity { get; set; }
     }
 }
