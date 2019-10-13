@@ -4,9 +4,9 @@ using Crabtopus.App.Services;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Crabtopus.App
 {
@@ -19,7 +19,7 @@ namespace Crabtopus.App
                 .AddJsonFile("appsettings.json");
 
             string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            if (environment == EnvironmentName.Development)
+            if (environment == Environments.Development)
             {
                 builder.AddUserSecrets<Startup>();
             }

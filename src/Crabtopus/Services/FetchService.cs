@@ -21,7 +21,7 @@ namespace Crabtopus.App.Services
             _context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
         }
 
-        public async Task<IEnumerable<EventInfo>> GetEventsAsync()
+        public async Task<IEnumerable<EventData>> GetEventsAsync()
         {
             string address = $"https://{BaseUrl}/format?f=ST";
             IDocument document = await _context.OpenAsync(address);
@@ -29,7 +29,7 @@ namespace Crabtopus.App.Services
                 ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(3) > tbody:nth-child(1) > tr:not(:first-child)," +
                 ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:not(:first-child)";
             IHtmlCollection<IElement> eventsCells = document.QuerySelectorAll(eventsSelector);
-            var events = new List<EventInfo>();
+            var events = new List<EventData>();
             foreach (IElement cell in eventsCells)
             {
                 IElement link = cell.QuerySelector("td:nth-child(1) > a");
@@ -39,7 +39,7 @@ namespace Crabtopus.App.Services
                 DateTime date = DateTime.ParseExact(cell.QuerySelector("td:nth-child(3)").TextContent, "dd/MM/yy", CultureInfo.CurrentCulture);
                 if (!events.Select(x => x.Id).Contains(id))
                 {
-                    events.Add(new EventInfo(id, name, date, rating));
+                    events.Add(new EventData(id, name, date, rating));
                 }
             }
 

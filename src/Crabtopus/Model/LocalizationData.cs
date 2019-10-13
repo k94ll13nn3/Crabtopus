@@ -2,7 +2,7 @@
 
 namespace Crabtopus.App.Model
 {
-    public class Localization
+    public class LocalizationData
     {
         public string Langkey { get; set; }
 
