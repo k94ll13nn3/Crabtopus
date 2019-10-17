@@ -33,7 +33,7 @@ namespace Crabtopus.App.Modules
                 builder.AppendLine("```");
                 foreach (EventData eventInfo in eventInfos)
                 {
-                    builder.AppendLine($"{eventInfo.Id} {eventInfo.Date.ToShortDateString()} {new string('*', eventInfo.Rating).PadRight(3, '\u00A0')} {eventInfo.Name}");
+                    builder.AppendLine($"{eventInfo.Id} {eventInfo.Date.ToShortDateString()} {new string('*', eventInfo.Rating).PadRight(4, '\u00A0')} {eventInfo.Name}");
                 }
                 builder.AppendLine("```");
             }
@@ -56,9 +56,9 @@ namespace Crabtopus.App.Modules
             {
                 builder.AppendLine(address);
                 builder.AppendLine("```");
-                foreach (EventData eventInfo in eventInfos.Where(x => x.Rating == 3))
+                foreach (EventData eventInfo in eventInfos.Where(x => x.Rating >= 3))
                 {
-                    builder.AppendLine($"{eventInfo.Id} {eventInfo.Date.ToShortDateString()} {new string('*', eventInfo.Rating).PadRight(3, ' ')} {eventInfo.Name}");
+                    builder.AppendLine($"{eventInfo.Id} {eventInfo.Date.ToShortDateString()} {new string('*', eventInfo.Rating).PadRight(4, '\u00A0')} {eventInfo.Name}");
                 }
                 builder.AppendLine("```");
             }

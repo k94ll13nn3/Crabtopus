@@ -36,6 +36,11 @@ namespace Crabtopus.App.Services
                 int id = int.Parse(HttpUtility.ParseQueryString(new Uri($"https://{BaseUrl}/{link.GetAttribute("href")}").Query)["e"], CultureInfo.InvariantCulture);
                 string name = link.TextContent;
                 int rating = cell.QuerySelector("td:nth-child(2)").ChildElementCount;
+                if (cell.QuerySelector("td:nth-child(2)").FirstElementChild.GetAttribute("src") == "graph/bigstar.png")
+                {
+                    rating = 4;
+                }
+
                 DateTime date = DateTime.ParseExact(cell.QuerySelector("td:nth-child(3)").TextContent, "dd/MM/yy", CultureInfo.CurrentCulture);
                 if (!events.Select(x => x.Id).Contains(id))
                 {
