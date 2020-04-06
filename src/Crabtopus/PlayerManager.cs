@@ -42,7 +42,7 @@ namespace Crabtopus
             var validatedDeck = new Deck();
             foreach (DeckCard deckCard in newDeck.MainDeck)
             {
-                Card card = _cardManager.Cards.First(x => x.Set == deckCard.Set && x.CollectorNumber == deckCard.CollectorNumber);
+                Card card = _cardManager.Get(deckCard.Set, deckCard.CollectorNumber);
 
                 deckCard.Rarity = card.Rarity;
                 if (card.Rarity == Rarity.BasicLand)
@@ -148,7 +148,7 @@ namespace Crabtopus
             Debug.WriteLine("Deck:");
             foreach (DeckCard item in result.ValidatedDeck.MainDeck)
             {
-                Card card = _cardManager.Cards.First(x => x.Set == item.Set && x.CollectorNumber == item.CollectorNumber);
+                Card card = _cardManager.Get(item.Set, item.CollectorNumber);
                 Debug.WriteLine($"{item.Count} {card.Title} ({card.Set}) {card.CollectorNumber}");
             }
 
@@ -157,7 +157,7 @@ namespace Crabtopus
 
             foreach (DeckCard item in result.MissingCards)
             {
-                Card card = _cardManager.Cards.First(x => x.Set == item.Set && x.CollectorNumber == item.CollectorNumber);
+                Card card = _cardManager.Get(item.Set, item.CollectorNumber);
                 Debug.WriteLine($"{item.Count} {card.Title} ({card.Set}) {card.CollectorNumber}");
             }
 
@@ -208,7 +208,7 @@ namespace Crabtopus
             var collection = new Dictionary<Card, int>();
             foreach (KeyValuePair<string, int> cardInfo in JsonSerializer.Deserialize<Dictionary<string, int>>(collectionBlob.Content))
             {
-                Card card = _cardManager.Cards.First(x => $"{x.Id}" == cardInfo.Key);
+                Card card = _cardManager.GetById(cardInfo.Key);
                 collection.Add(card, cardInfo.Value);
             }
 

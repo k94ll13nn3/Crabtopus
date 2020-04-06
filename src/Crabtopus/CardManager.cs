@@ -16,6 +16,7 @@ namespace Crabtopus
         private readonly string _version;
         private readonly string _endpoint;
         private readonly HttpClient _mtgarenaClient;
+        private List<Card> _cards = new List<Card>();
 
         public CardManager(LogReader logReader, IHttpClientFactory httpClientFactory)
         {
@@ -24,7 +25,15 @@ namespace Crabtopus
             _endpoint = logReader.Endpoint;
         }
 
-        public List<Card> Cards { get; set; } = new List<Card>();
+        public Card Get(string set, string collectorNumber)
+        {
+            return _cards.First(x => x.Set == set && x.CollectorNumber == collectorNumber);
+        }
+
+        public Card GetById(string id)
+        {
+            return _cards.First(x => $"{x.Id}" == id);
+        }
 
         public async Task LoadCardsAsync()
         {
@@ -59,7 +68,7 @@ namespace Crabtopus
                 string cardsPath = Path.Combine(_version, "cards.json");
                 if (File.Exists(cardsPath) && cardsHash == cardsAsset.Hash && localizationHash == localizationsAsset.Hash)
                 {
-                    Cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
+                    _cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
                 }
                 else
                 {
@@ -83,8 +92,8 @@ namespace Crabtopus
                         card.Title = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
                     }
 
-                    Cards = cards;
-                    File.WriteAllText(cardsPath, JsonSerializer.Serialize(Cards));
+                    _cards = cards;
+                    File.WriteAllText(cardsPath, JsonSerializer.Serialize(_cards));
                 }
             }
             catch (HttpRequestException e)
@@ -92,7 +101,7 @@ namespace Crabtopus
                 string cardsPath = Path.Combine(_version, "cards.json");
                 if (File.Exists(cardsPath))
                 {
-                    Cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
+                    _cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
                 }
                 else
                 {
