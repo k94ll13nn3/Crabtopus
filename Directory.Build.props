@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <NoWarn>RCS1090;CA2007;AD0001;CA1303;CA1812;S3966</NoWarn>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
