@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Crabtopus.Model
 {
@@ -11,7 +11,7 @@ namespace Crabtopus.Model
             string[] splittedData = data.Split(new[] { '.', ' ' }, 3);
             Type = splittedData[0];
             Method = splittedData[1];
-            DataResponse response = JsonConvert.DeserializeObject<DataResponse>(splittedData[2]);
+            DataResponse response = JsonSerializer.Deserialize<DataResponse>(splittedData[2]);
             Id = response.Id;
             Content = response.Payload?.ToString() ?? string.Empty;
             IsArray = Content[0] == '[';

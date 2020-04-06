@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Crabtopus.Model;
-using Newtonsoft.Json;
 
 namespace Crabtopus
 {
@@ -206,9 +206,9 @@ namespace Crabtopus
         private Dictionary<Card, int> LoadCollection(Blob collectionBlob)
         {
             var collection = new Dictionary<Card, int>();
-            foreach (KeyValuePair<int, int> cardInfo in JsonConvert.DeserializeObject<Dictionary<int, int>>(collectionBlob.Content))
+            foreach (KeyValuePair<string, int> cardInfo in JsonSerializer.Deserialize<Dictionary<string, int>>(collectionBlob.Content))
             {
-                Card card = _cardManager.Cards.First(x => x.Id == cardInfo.Key);
+                Card card = _cardManager.Cards.First(x => $"{x.Id}" == cardInfo.Key);
                 collection.Add(card, cardInfo.Value);
             }
 
@@ -217,12 +217,12 @@ namespace Crabtopus
 
         private Wildcards LoadInventory(Blob inventoryBlob)
         {
-            return JsonConvert.DeserializeObject<Wildcards>(inventoryBlob.Content);
+            return JsonSerializer.Deserialize<Wildcards>(inventoryBlob.Content);
         }
 
         private CombinedRankInfo LoadCombinedRankInfo(Blob inventoryBlob)
         {
-            return JsonConvert.DeserializeObject<CombinedRankInfo>(inventoryBlob.Content);
+            return JsonSerializer.Deserialize<CombinedRankInfo>(inventoryBlob.Content);
         }
     }
 }

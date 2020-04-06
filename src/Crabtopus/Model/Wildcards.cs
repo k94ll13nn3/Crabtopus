@@ -1,19 +1,20 @@
-﻿using Newtonsoft.Json;
+﻿
+using System.Text.Json.Serialization;
 
 namespace Crabtopus.Model
 {
     internal class Wildcards
     {
-        [JsonProperty("wcCommon")]
+        [JsonPropertyName("wcCommon")]
         public long Common { get; set; }
 
-        [JsonProperty("wcUncommon")]
+        [JsonPropertyName("wcUncommon")]
         public long Uncommon { get; set; }
 
-        [JsonProperty("wcRare")]
+        [JsonPropertyName("wcRare")]
         public long Rare { get; set; }
 
-        [JsonProperty("wcMythic")]
+        [JsonPropertyName("wcMythic")]
         public long MythicRare { get; set; }
     }
 }

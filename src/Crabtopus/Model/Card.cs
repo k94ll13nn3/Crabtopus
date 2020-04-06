@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Crabtopus.Model
 {
     internal class Card : IEquatable<Card>
     {
-        [JsonProperty("grpid")]
+        [JsonPropertyName("grpid")]
         public long Id { get; set; }
 
+        [JsonPropertyName("titleId")]
         public long TitleId { get; set; }
 
+        [JsonPropertyName("CollectorNumber")]
         public string CollectorNumber { get; set; } = string.Empty;
 
+        [JsonPropertyName("set")]
         public string Set { get; set; } = string.Empty;
 
+        [JsonPropertyName("title")]
         public string Title { get; set; } = string.Empty;
 
-        [JsonProperty("rarity")]
+        [JsonPropertyName("rarity")]
         public int RarityValue { get; set; }
 
         [JsonIgnore]

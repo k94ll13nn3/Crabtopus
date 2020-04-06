@@ -5,9 +5,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Crabtopus.Model;
-using Newtonsoft.Json;
 
 namespace Crabtopus
 {
@@ -38,7 +38,7 @@ namespace Crabtopus
                 string hash = await _mtgarenaClient.GetStringAsync(new Uri(_endpoint, UriKind.Relative));
                 byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync(new Uri($"Manifest_{hash}.mtga", UriKind.Relative));
                 string uncompressedManifest = Unzip(compressedManifest);
-                Manifest manifest = JsonConvert.DeserializeObject<Manifest>(uncompressedManifest);
+                Manifest manifest = JsonSerializer.Deserialize<Manifest>(uncompressedManifest);
                 Asset cardsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_cards_", StringComparison.OrdinalIgnoreCase));
                 Asset localizationsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_loc_", StringComparison.OrdinalIgnoreCase));
 
@@ -59,7 +59,7 @@ namespace Crabtopus
                 string cardsPath = Path.Combine(_version, "cards.json");
                 if (File.Exists(cardsPath) && cardsHash == cardsAsset.Hash && localizationHash == localizationsAsset.Hash)
                 {
-                    Cards = JsonConvert.DeserializeObject<List<Card>>(File.ReadAllText(cardsPath));
+                    Cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
                 }
                 else
                 {
@@ -69,13 +69,13 @@ namespace Crabtopus
                     string cardsFileName = cardsAsset.Name;
                     byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(new Uri(cardsFileName, UriKind.Relative));
                     string uncompressedCards = Unzip(compressedCards);
-                    List<Card> cards = JsonConvert.DeserializeObject<List<Card>>(uncompressedCards);
+                    List<Card> cards = JsonSerializer.Deserialize<List<Card>>(uncompressedCards);
 
                     string localizationsFileName = localizationsAsset.Name;
                     byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(new Uri(localizationsFileName, UriKind.Relative));
                     string uncompressedLocalizations = Unzip(compressedLocalizations);
-                    Localization englishLocalization = JsonConvert
-                        .DeserializeObject<List<Localization>>(uncompressedLocalizations)
+                    Localization englishLocalization = JsonSerializer
+                        .Deserialize<List<Localization>>(uncompressedLocalizations)
                         .First(x => x.IsoCode == "en-US");
 
                     foreach (Card card in cards)
@@ -84,7 +84,7 @@ namespace Crabtopus
                     }
 
                     Cards = cards;
-                    File.WriteAllText(cardsPath, JsonConvert.SerializeObject(Cards));
+                    File.WriteAllText(cardsPath, JsonSerializer.Serialize(Cards));
                 }
             }
             catch (HttpRequestException e)
@@ -92,7 +92,7 @@ namespace Crabtopus
                 string cardsPath = Path.Combine(_version, "cards.json");
                 if (File.Exists(cardsPath))
                 {
-                    Cards = JsonConvert.DeserializeObject<List<Card>>(File.ReadAllText(cardsPath));
+                    Cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
                 }
                 else
                 {
