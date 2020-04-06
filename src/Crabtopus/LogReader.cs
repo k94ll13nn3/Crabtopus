@@ -93,39 +93,11 @@ namespace Crabtopus
                 }
 
                 string text = content.Slice(startIndex, lengthOfText).ToString();
-                int length = ReadBlobContent(content.Slice(currentIndex));
-                blobs.Add(new Blob(text, content[currentIndex] == '[', content.Slice(currentIndex, length).ToString()));
-                currentIndex += length;
+                blobs.Add(new Blob(text));
             }
 
             // Take the last id for each blob.
             return blobs.GroupBy(b => b.Name).Select(g => g.OrderByDescending(x => x.Id).First()).ToList();
-        }
-
-        private int ReadBlobContent(in ReadOnlySpan<char> content)
-        {
-            char start = content[0];
-            char end = content[0] == '[' ? ']' : '}';
-            int countStart = 1;
-            int countEnd = 0;
-            int index = 1;
-
-            while (countStart != countEnd)
-            {
-                if (content[index] == start)
-                {
-                    countStart++;
-                }
-
-                if (content[index] == end)
-                {
-                    countEnd++;
-                }
-
-                index++;
-            }
-
-            return index;
         }
     }
 }

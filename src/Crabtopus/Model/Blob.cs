@@ -1,18 +1,20 @@
 ﻿using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Crabtopus.Model
 {
     [DebuggerDisplay("{Name}")]
     public class Blob
     {
-        public Blob(string data, bool isArray, string content)
+        public Blob(string data)
         {
-            string[] splittedData = data.Split('.', '(', ')');
+            string[] splittedData = data.Split(new[] { '.', ' ' }, 3);
             Type = splittedData[0];
             Method = splittedData[1];
-            Id = int.Parse(splittedData[2]);
-            IsArray = isArray;
-            Content = content;
+            DataResponse response = JsonConvert.DeserializeObject<DataResponse>(splittedData[2]);
+            Id = response.Id;
+            Content = response.Payload.ToString();
+            IsArray = Content[0] == '[';
         }
 
         public string Type { get; set; }

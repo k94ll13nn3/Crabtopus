@@ -76,7 +76,7 @@ namespace Crabtopus
                     string uncompressedLocalizations = Unzip(compressedLocalizations);
                     Localization englishLocalization = JsonConvert
                         .DeserializeObject<List<Localization>>(uncompressedLocalizations)
-                        .Find(x => x.Langkey == "EN");
+                        .Find(x => x.IsoCode == "en-US");
 
                     foreach (Card card in cards)
                     {
