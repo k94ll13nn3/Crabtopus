@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Crabtopus.Model
+namespace Crabtopus.Models
 {
     internal class Localization
     {

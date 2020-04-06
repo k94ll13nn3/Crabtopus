@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 
-namespace Crabtopus.Model
+namespace Crabtopus.Models
 {
     [DebuggerDisplay("{Name}")]
     internal class Blob

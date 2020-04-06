@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Crabtopus.Model;
+using Crabtopus.Models;
 
 namespace Crabtopus
 {

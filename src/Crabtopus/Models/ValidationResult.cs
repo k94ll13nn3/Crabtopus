@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Crabtopus.Model
+namespace Crabtopus.Models
 {
     internal class ValidationResult
     {

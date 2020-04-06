@@ -1,4 +1,4 @@
-﻿namespace Crabtopus.Model
+﻿namespace Crabtopus.Models
 {
     internal enum Rarity
     {
