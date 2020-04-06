@@ -1,9 +1,9 @@
 ﻿namespace Crabtopus.Model
 {
-    public class Asset
+    internal class Asset
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public string Hash { get; set; }
+        public string Hash { get; set; } = string.Empty;
     }
 }

@@ -2,12 +2,19 @@
 
 namespace Crabtopus.Model
 {
-    public class ValidationResult
+    internal class ValidationResult
     {
-        public Deck ValidatedDeck { get; set; }
+        public ValidationResult(Deck validatedDeck, ICollection<DeckCard> missingCards, Wildcards wildcards)
+        {
+            ValidatedDeck = validatedDeck;
+            MissingCards = missingCards;
+            Wildcards = wildcards;
+        }
 
-        public ICollection<DeckCard> MissingCards { get; set; }
+        public Deck ValidatedDeck { get; }
 
-        public Wildcards Wildcards { get; set; }
+        public ICollection<DeckCard> MissingCards { get; }
+
+        public Wildcards Wildcards { get; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Crabtopus.Model
 {
-    public enum Rarity
+    internal enum Rarity
     {
         BasicLand,
         Common,

@@ -2,7 +2,7 @@
 
 namespace Crabtopus.Model
 {
-    public class Deck
+    internal class Deck
     {
         public ICollection<DeckCard> MainDeck { get; set; } = new List<DeckCard>();
 

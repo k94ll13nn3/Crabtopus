@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Crabtopus.Model;
@@ -7,44 +8,42 @@ using Newtonsoft.Json;
 
 namespace Crabtopus
 {
-    public class PlayerManager
+    internal class PlayerManager
     {
-        private static readonly Regex _cardLineRegex = new Regex(@"(\d{1,2}) (.*?) \((\w+)\) (\w+)", RegexOptions.Compiled);
+        private static readonly Regex CardLineRegex = new Regex(@"(\d{1,2}) (.*?) \((\w+)\) (\w+)", RegexOptions.Compiled);
         private readonly CardManager _cardManager;
         private readonly Dictionary<Card, int> _collection;
-        private Wildcards _inventory;
-        private CombinedRankInfo _combinedRankInfo;
+        private readonly Wildcards _inventory;
+        private readonly CombinedRankInfo _combinedRankInfo;
 
         public PlayerManager(CardManager cardManager, LogReader logReader)
         {
             _cardManager = cardManager;
-            _collection = new Dictionary<Card, int>();
-
-            LoadCollection(logReader.Blobs.First(x => x.Method == "GetPlayerCardsV3"));
-            LoadInventory(logReader.Blobs.First(x => x.Method == "GetPlayerInventory"));
-            LoadCombinedRankInfo(logReader.Blobs.First(x => x.Method == "GetCombinedRankInfo"));
+            _collection = LoadCollection(logReader.Blobs.First(x => x.Method == "GetPlayerCardsV3"));
+            _inventory = LoadInventory(logReader.Blobs.First(x => x.Method == "GetPlayerInventory"));
+            _combinedRankInfo = LoadCombinedRankInfo(logReader.Blobs.First(x => x.Method == "GetCombinedRankInfo"));
         }
 
         public void DisplaySeasonStatistics()
         {
-            Console.WriteLine("Player season statistics:");
-            Console.WriteLine($"Rank: {_combinedRankInfo.ConstructedClass} {_combinedRankInfo.ConstructedLevel}");
-            Console.WriteLine($"Matches won: {_combinedRankInfo.ConstructedMatchesWon}");
-            Console.WriteLine($"Matches drawn: {_combinedRankInfo.ConstructedMatchesDrawn}");
-            Console.WriteLine($"Matches lost: {_combinedRankInfo.ConstructedMatchesLost}");
-            Console.WriteLine($"Total matches: {_combinedRankInfo.ConstructedMatchesTotal} ({_combinedRankInfo.ConstructedMatchesWon * 100.0 / _combinedRankInfo.ConstructedMatchesTotal:0.00}% W/L)");
-            Console.WriteLine();
-            Console.WriteLine();
+            Debug.WriteLine("Player season statistics:");
+            Debug.WriteLine($"Rank: {_combinedRankInfo.ConstructedClass} {_combinedRankInfo.ConstructedLevel}");
+            Debug.WriteLine($"Matches won: {_combinedRankInfo.ConstructedMatchesWon}");
+            Debug.WriteLine($"Matches drawn: {_combinedRankInfo.ConstructedMatchesDrawn}");
+            Debug.WriteLine($"Matches lost: {_combinedRankInfo.ConstructedMatchesLost}");
+            Debug.WriteLine($"Total matches: {_combinedRankInfo.ConstructedMatchesTotal} ({_combinedRankInfo.ConstructedMatchesWon * 100.0 / _combinedRankInfo.ConstructedMatchesTotal:0.00}% W/L)");
+            Debug.WriteLine("");
         }
 
-        public ValidationResult ValidateDeck(IEnumerable<string> deckList)
+        public void ValidateDeck(IEnumerable<string> deckList)
         {
             Deck newDeck = ParseDeckList(deckList);
             var missingCards = new List<DeckCard>();
             var validatedDeck = new Deck();
             foreach (DeckCard deckCard in newDeck.MainDeck)
             {
-                Card card = _cardManager.Cards.Find(x => x.Set == deckCard.Set && x.CollectorNumber == deckCard.CollectorNumber);
+                Card card = _cardManager.Cards.First(x => x.Set == deckCard.Set && x.CollectorNumber == deckCard.CollectorNumber);
+
                 deckCard.Rarity = card.Rarity;
                 if (card.Rarity == Rarity.BasicLand)
                 {
@@ -121,12 +120,7 @@ namespace Crabtopus
                 }
             }
 
-            var result = new ValidationResult
-            {
-                Wildcards = new Wildcards(),
-                ValidatedDeck = validatedDeck,
-                MissingCards = missingCards,
-            };
+            var result = new ValidationResult(validatedDeck, missingCards, new Wildcards());
 
             foreach (IGrouping<Rarity, DeckCard> cardsByRarity in missingCards.GroupBy(x => x.Rarity))
             {
@@ -151,57 +145,33 @@ namespace Crabtopus
                 }
             }
 
-            int c = result.ValidatedDeck.MainDeck.Sum(x => x.Count);
-            int c2 = result.MissingCards.Sum(x => x.Count);
-
+            Debug.WriteLine("Deck:");
             foreach (DeckCard item in result.ValidatedDeck.MainDeck)
             {
-                Card card = _cardManager.Cards.Find(x => x.Set == item.Set && x.CollectorNumber == item.CollectorNumber);
-                Console.WriteLine($"{item.Count} {card.Title} ({card.Set}) {card.CollectorNumber}");
+                Card card = _cardManager.Cards.First(x => x.Set == item.Set && x.CollectorNumber == item.CollectorNumber);
+                Debug.WriteLine($"{item.Count} {card.Title} ({card.Set}) {card.CollectorNumber}");
             }
+
+            Debug.WriteLine("");
+            Debug.WriteLine("Missing:");
+
             foreach (DeckCard item in result.MissingCards)
             {
-                Card card = _cardManager.Cards.Find(x => x.Set == item.Set && x.CollectorNumber == item.CollectorNumber);
-                Console.WriteLine($"{item.Count} {card.Title} ({card.Set}) {card.CollectorNumber}");
+                Card card = _cardManager.Cards.First(x => x.Set == item.Set && x.CollectorNumber == item.CollectorNumber);
+                Debug.WriteLine($"{item.Count} {card.Title} ({card.Set}) {card.CollectorNumber}");
             }
 
-            Console.WriteLine();
-            Console.WriteLine();
+            Debug.WriteLine("");
 
-            Console.WriteLine("Wildcards needed:");
-            Console.WriteLine($"Common: {result.Wildcards.Common} ({_inventory.Common})");
-            Console.WriteLine($"Uncommon: {result.Wildcards.Uncommon} ({_inventory.Uncommon})");
-            Console.WriteLine($"Rare: {result.Wildcards.Rare} ({_inventory.Rare})");
-            Console.WriteLine($"MythicRare: {result.Wildcards.MythicRare} ({_inventory.MythicRare})");
-            Console.WriteLine();
-            Console.WriteLine();
-
-            return result;
+            Debug.WriteLine("Wildcards needed:");
+            Debug.WriteLine($"Common: {result.Wildcards.Common} ({_inventory.Common})");
+            Debug.WriteLine($"Uncommon: {result.Wildcards.Uncommon} ({_inventory.Uncommon})");
+            Debug.WriteLine($"Rare: {result.Wildcards.Rare} ({_inventory.Rare})");
+            Debug.WriteLine($"MythicRare: {result.Wildcards.MythicRare} ({_inventory.MythicRare})");
+            Debug.WriteLine("");
         }
 
-        private void LoadCollection(Blob collectionBlob)
-        {
-            foreach (KeyValuePair<int, int> cardInfo in JsonConvert.DeserializeObject<Dictionary<int, int>>(collectionBlob.Content))
-            {
-                Card card = _cardManager.Cards.Find(x => x.Id == cardInfo.Key);
-                if (card != null)
-                {
-                    _collection.Add(card, cardInfo.Value);
-                }
-            }
-        }
-
-        private void LoadInventory(Blob inventoryBlob)
-        {
-            _inventory = JsonConvert.DeserializeObject<Wildcards>(inventoryBlob.Content);
-        }
-
-        private void LoadCombinedRankInfo(Blob inventoryBlob)
-        {
-            _combinedRankInfo = JsonConvert.DeserializeObject<CombinedRankInfo>(inventoryBlob.Content);
-        }
-
-        private Deck ParseDeckList(IEnumerable<string> deckList)
+        private static Deck ParseDeckList(IEnumerable<string> deckList)
         {
             var deck = new Deck
             {
@@ -211,7 +181,7 @@ namespace Crabtopus
 
             foreach (string line in deckList)
             {
-                Match match = _cardLineRegex.Match(line);
+                Match match = CardLineRegex.Match(line);
                 if (match.Success)
                 {
                     string collectorNumber = match.Groups[4].Value;
@@ -220,17 +190,39 @@ namespace Crabtopus
                     if (sameCardInDeck is null)
                     {
                         var card = new DeckCard { CollectorNumber = collectorNumber, Set = set };
-                        card.Count = int.Parse(match.Groups[1].Value);
+                        card.Count = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
                         deck.MainDeck.Add(card);
                     }
                     else
                     {
-                        sameCardInDeck.Count += int.Parse(match.Groups[1].Value);
+                        sameCardInDeck.Count += int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
                     }
                 }
             }
 
             return deck;
+        }
+
+        private Dictionary<Card, int> LoadCollection(Blob collectionBlob)
+        {
+            var collection = new Dictionary<Card, int>();
+            foreach (KeyValuePair<int, int> cardInfo in JsonConvert.DeserializeObject<Dictionary<int, int>>(collectionBlob.Content))
+            {
+                Card card = _cardManager.Cards.First(x => x.Id == cardInfo.Key);
+                collection.Add(card, cardInfo.Value);
+            }
+
+            return collection;
+        }
+
+        private Wildcards LoadInventory(Blob inventoryBlob)
+        {
+            return JsonConvert.DeserializeObject<Wildcards>(inventoryBlob.Content);
+        }
+
+        private CombinedRankInfo LoadCombinedRankInfo(Blob inventoryBlob)
+        {
+            return JsonConvert.DeserializeObject<CombinedRankInfo>(inventoryBlob.Content);
         }
     }
 }

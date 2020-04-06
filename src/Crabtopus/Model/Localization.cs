@@ -2,10 +2,10 @@
 
 namespace Crabtopus.Model
 {
-    public class Localization
+    internal class Localization
     {
-        public string IsoCode { get; set; }
+        public string IsoCode { get; set; } = string.Empty;
 
-        public List<Key> Keys { get; set; }
+        public List<Key> Keys { get; set; } = new List<Key>();
     }
 }

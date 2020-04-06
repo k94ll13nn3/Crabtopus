@@ -1,9 +1,9 @@
 ﻿namespace Crabtopus.Model
 {
-    public class Key
+    internal class Key
     {
         public long Id { get; set; }
 
-        public string Text { get; set; }
+        public string Text { get; set; } = string.Empty;
     }
 }

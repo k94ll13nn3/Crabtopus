@@ -2,8 +2,8 @@
 
 namespace Crabtopus.Model
 {
-    public class Manifest
+    internal class Manifest
     {
-        public List<Asset> Assets { get; set; }
+        public List<Asset> Assets { get; set; } = new List<Asset>();
     }
 }

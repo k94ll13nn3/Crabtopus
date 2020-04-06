@@ -2,9 +2,9 @@
 
 namespace Crabtopus.Model
 {
-    public class CombinedRankInfo
+    internal class CombinedRankInfo
     {
-        public string ConstructedClass { get; set; }
+        public string ConstructedClass { get; set; } = string.Empty;
 
         public long ConstructedLevel { get; set; }
 

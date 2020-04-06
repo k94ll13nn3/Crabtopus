@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace Crabtopus
 {
-    public class CardManager
+    internal class CardManager
     {
         private readonly string _version;
         private readonly string _endpoint;
@@ -24,7 +24,7 @@ namespace Crabtopus
             _endpoint = logReader.Endpoint;
         }
 
-        public List<Card> Cards { get; set; }
+        public List<Card> Cards { get; set; } = new List<Card>();
 
         public async Task LoadCardsAsync()
         {
@@ -35,15 +35,15 @@ namespace Crabtopus
 
             try
             {
-                string hash = await _mtgarenaClient.GetStringAsync(_endpoint);
-                byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync($"Manifest_{hash}.mtga");
+                string hash = await _mtgarenaClient.GetStringAsync(new Uri(_endpoint, UriKind.Relative));
+                byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync(new Uri($"Manifest_{hash}.mtga", UriKind.Relative));
                 string uncompressedManifest = Unzip(compressedManifest);
                 Manifest manifest = JsonConvert.DeserializeObject<Manifest>(uncompressedManifest);
-                Asset cardsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_cards_"));
-                Asset localizationsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_loc_"));
+                Asset cardsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_cards_", StringComparison.OrdinalIgnoreCase));
+                Asset localizationsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_loc_", StringComparison.OrdinalIgnoreCase));
 
-                string cardsHash = null;
-                string localizationHash = null;
+                string cardsHash = string.Empty;
+                string localizationHash = string.Empty;
                 string cardsHashPath = Path.Combine(_version, "cards.hash");
                 string localizationHashPath = Path.Combine(_version, "localization.hash");
                 if (File.Exists(cardsHashPath))
@@ -67,20 +67,20 @@ namespace Crabtopus
                     File.WriteAllText(localizationHashPath, localizationsAsset.Hash);
 
                     string cardsFileName = cardsAsset.Name;
-                    byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(cardsFileName);
+                    byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(new Uri(cardsFileName, UriKind.Relative));
                     string uncompressedCards = Unzip(compressedCards);
                     List<Card> cards = JsonConvert.DeserializeObject<List<Card>>(uncompressedCards);
 
                     string localizationsFileName = localizationsAsset.Name;
-                    byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(localizationsFileName);
+                    byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(new Uri(localizationsFileName, UriKind.Relative));
                     string uncompressedLocalizations = Unzip(compressedLocalizations);
                     Localization englishLocalization = JsonConvert
                         .DeserializeObject<List<Localization>>(uncompressedLocalizations)
-                        .Find(x => x.IsoCode == "en-US");
+                        .First(x => x.IsoCode == "en-US");
 
                     foreach (Card card in cards)
                     {
-                        card.Title = englishLocalization.Keys.Find(x => x.Id == card.TitleId)?.Text;
+                        card.Title = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
                     }
 
                     Cards = cards;

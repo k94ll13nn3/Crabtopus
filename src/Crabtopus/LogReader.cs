@@ -8,7 +8,7 @@ using Crabtopus.Model;
 
 namespace Crabtopus
 {
-    public class LogReader
+    internal class LogReader
     {
         private const string Delimiter = "<== ";
         private const string EndpointDelimiter = "EndpointHashPath = ";
@@ -25,7 +25,7 @@ namespace Crabtopus
             using (var fileStream = new FileStream(logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 0x1000, FileOptions.SequentialScan))
             using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
             {
-                string line;
+                string? line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     builder.AppendLine(line);

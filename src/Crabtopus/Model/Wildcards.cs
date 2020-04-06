@@ -2,7 +2,7 @@
 
 namespace Crabtopus.Model
 {
-    public class Wildcards
+    internal class Wildcards
     {
         [JsonProperty("wcCommon")]
         public long Common { get; set; }

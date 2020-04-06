@@ -1,10 +1,10 @@
 ﻿namespace Crabtopus.Model
 {
-    public class DeckCard
+    internal class DeckCard
     {
-        public string CollectorNumber { get; set; }
+        public string CollectorNumber { get; set; } = string.Empty;
 
-        public string Set { get; set; }
+        public string Set { get; set; } = string.Empty;
 
         public Rarity Rarity { get; set; }
 
