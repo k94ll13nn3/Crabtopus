@@ -21,21 +21,7 @@
 
   <ItemGroup>
     <Resource Include="Resources\Righteous-Regular.ttf" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Resources\Icons.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Icons.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\Icons.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Icons.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <Resource Include="Resources\tray-icon.ico" />
   </ItemGroup>
 
   <ItemGroup>

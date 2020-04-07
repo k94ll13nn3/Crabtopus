@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Threading;
-using Crabtopus.Resources;
 using Hardcodet.Wpf.TaskbarNotification;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,23 +16,17 @@ namespace Crabtopus
         private readonly Overlayer _overlayer;
         private readonly ServiceProvider _serviceProvider;
         private readonly LogReader _logReader;
-        private readonly TaskbarIcon _taskbarIcon;
+        private TaskbarIcon? _taskbarIcon;
         private bool _disposedValue;
 
         public App()
         {
-            _taskbarIcon = ConfigureTaskbarIcon();
+            _overlayer = new Overlayer("firefox", _overlay, OverlayPosition.Top | OverlayPosition.Left);
 
             _logReader = new LogReader();
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
             _serviceProvider = serviceCollection.BuildServiceProvider();
-
-            _overlayer = new Overlayer("firefox", _overlay, OverlayPosition.Top | OverlayPosition.Left);
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
-            timer.Tick += (s, e) => Dispatcher.BeginInvoke(new Action(() => _overlayer.Update()));
-
-            timer.Start();
         }
 
         public void Dispose()
@@ -58,30 +50,23 @@ namespace Crabtopus
             }
         }
 
-        private TaskbarIcon ConfigureTaskbarIcon()
+        protected override void OnExit(ExitEventArgs e)
         {
-            var contextMenu = new ContextMenu();
-            var quitApplicationMenuItem = new MenuItem()
-            {
-                Header = "quit"
-            };
-            quitApplicationMenuItem.Click += (s, e) => Current.Shutdown();
-            contextMenu.Items.Add(quitApplicationMenuItem);
-            return new TaskbarIcon
-            {
-                ToolTipText = "Crabtopus",
-                Icon = Icons.TrayIcon,
-                ContextMenu = contextMenu
-            };
+            Dispose();
+            base.OnExit(e);
         }
 
-        private void ConfigureServices(IServiceCollection services)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            services.AddHttpClient("mtgarena", c => c.BaseAddress = _logReader.AssetsUri);
-        }
+            base.OnStartup(e);
 
-        private async void OnStartupAsync(object sender, StartupEventArgs e)
-        {
+            _taskbarIcon = LoadTaskbarIcon();
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            timer.Tick += (s, e) => Dispatcher.BeginInvoke(new Action(() => _overlayer.Update()));
+
+            timer.Start();
+
             IHttpClientFactory httpClientFactory = _serviceProvider.GetService<IHttpClientFactory>();
             var cardManager = new CardManager(_logReader, httpClientFactory);
             await cardManager.LoadCardsAsync();
@@ -116,6 +101,16 @@ namespace Crabtopus
             var player = new PlayerManager(cardManager, _logReader);
             player.ValidateDeck(deck);
             player.DisplaySeasonStatistics();
+        }
+
+        private TaskbarIcon LoadTaskbarIcon()
+        {
+            return (TaskbarIcon)FindResource("NotifyIcon");
+        }
+
+        private void ConfigureServices(IServiceCollection services)
+        {
+            services.AddHttpClient("mtgarena", c => c.BaseAddress = _logReader.AssetsUri);
         }
     }
 }
