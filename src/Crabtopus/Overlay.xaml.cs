@@ -1,15 +1,15 @@
 ﻿using System.Windows;
+using Crabtopus.ViewModels;
 
 namespace Crabtopus
 {
-    /// <summary>
-    /// Logique d'interaction pour Overlay.xaml
-    /// </summary>
-    public partial class Overlay : Window
+    internal partial class Overlay : Window
     {
-        public Overlay()
+        public Overlay(OverlayViewModel viewModel)
         {
             InitializeComponent();
+
+            DataContext = viewModel;
         }
     }
 }
