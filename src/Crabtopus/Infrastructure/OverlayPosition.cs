@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Crabtopus
+namespace Crabtopus.Infrastructure
 {
     /// <summary>
     /// Specify where the overlay window must be located.

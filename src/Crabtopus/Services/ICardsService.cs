@@ -1,8 +1,8 @@
 ﻿using Crabtopus.Models;
 
-namespace Crabtopus
+namespace Crabtopus.Services
 {
-    internal interface ICardRepository
+    internal interface ICardsService
     {
         Card GetById(string id);
 

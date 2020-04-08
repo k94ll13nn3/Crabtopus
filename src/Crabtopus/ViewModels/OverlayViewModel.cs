@@ -1,28 +1,24 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using Crabtopus.Services;
 
 namespace Crabtopus.ViewModels
 {
     internal class OverlayViewModel : ViewModelBase
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly LogReader _logReader;
+        private readonly IBlobsService _blobsService;
+        private readonly ICardsService _cardsService;
 
-        public OverlayViewModel(IHttpClientFactory httpClientFactory, LogReader logReader)
+        public OverlayViewModel(IBlobsService blobsService, ICardsService cardsService)
         {
-            LoadCommand = new DelegateCommand<object>(async _ => await LoadAsync());
-            _httpClientFactory = httpClientFactory;
-            _logReader = logReader;
+            LoadCommand = new DelegateCommand<object>(_ => Load());
+            _blobsService = blobsService;
+            _cardsService = cardsService;
         }
 
         public ICommand LoadCommand { get; set; }
 
-        private async Task LoadAsync()
+        private void Load()
         {
-            var cardManager = new CardManager(_logReader, _httpClientFactory);
-            await cardManager.LoadCardsAsync();
-
             string[] deck = new[]
             {
                 "2 Chemister's Insight (GRN) 32",
@@ -50,7 +46,7 @@ namespace Crabtopus.ViewModels
                 "3 Treasure Map (XLN) 250",
             };
 
-            var player = new PlayerManager(cardManager, _logReader);
+            var player = new PlayerManager(_cardsService, _blobsService);
             player.ValidateDeck(deck);
             player.DisplaySeasonStatistics();
         }

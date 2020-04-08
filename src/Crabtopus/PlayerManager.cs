@@ -5,23 +5,25 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Crabtopus.Models;
+using Crabtopus.Services;
 
+// TODO : to merge with overlayviewmodel
 namespace Crabtopus
 {
     internal class PlayerManager
     {
         private static readonly Regex CardLineRegex = new Regex(@"(\d{1,2}) (.*?) \((\w+)\) (\w+)", RegexOptions.Compiled);
-        private readonly ICardRepository _cardRepository;
+        private readonly ICardsService _cardsService;
         private readonly Dictionary<Card, int> _collection;
         private readonly Wildcards _inventory;
         private readonly CombinedRankInfo _combinedRankInfo;
 
-        public PlayerManager(ICardRepository cardRepository, IBlobReader blobReader)
+        public PlayerManager(ICardsService cardsService, IBlobsService blobsService)
         {
-            _cardRepository = cardRepository;
-            _collection = LoadCollection(blobReader.GetPlayerCards());
-            _inventory = LoadInventory(blobReader.GetPlayerInventory());
-            _combinedRankInfo = LoadCombinedRankInfo(blobReader.GetCombinedRankInfo());
+            _cardsService = cardsService;
+            _collection = LoadCollection(blobsService.GetPlayerCards());
+            _inventory = LoadInventory(blobsService.GetPlayerInventory());
+            _combinedRankInfo = LoadCombinedRankInfo(blobsService.GetCombinedRankInfo());
         }
 
         public void DisplaySeasonStatistics()
@@ -42,7 +44,7 @@ namespace Crabtopus
             var validatedDeck = new Deck();
             foreach (DeckCard deckCard in newDeck.MainDeck)
             {
-                Card card = _cardRepository.Get(deckCard.Set, deckCard.CollectorNumber);
+                Card card = _cardsService.Get(deckCard.Set, deckCard.CollectorNumber);
 
                 deckCard.Rarity = card.Rarity;
                 if (card.Rarity == Rarity.BasicLand)
@@ -148,7 +150,7 @@ namespace Crabtopus
             Debug.WriteLine("Deck:");
             foreach (DeckCard item in result.ValidatedDeck.MainDeck)
             {
-                Card card = _cardRepository.Get(item.Set, item.CollectorNumber);
+                Card card = _cardsService.Get(item.Set, item.CollectorNumber);
                 Debug.WriteLine($"{item.Count} {card.Title} ({card.Set}) {card.CollectorNumber}");
             }
 
@@ -157,7 +159,7 @@ namespace Crabtopus
 
             foreach (DeckCard item in result.MissingCards)
             {
-                Card card = _cardRepository.Get(item.Set, item.CollectorNumber);
+                Card card = _cardsService.Get(item.Set, item.CollectorNumber);
                 Debug.WriteLine($"{item.Count} {card.Title} ({card.Set}) {card.CollectorNumber}");
             }
 
@@ -208,7 +210,7 @@ namespace Crabtopus
             var collection = new Dictionary<Card, int>();
             foreach (KeyValuePair<string, int> cardInfo in JsonSerializer.Deserialize<Dictionary<string, int>>(collectionBlob.Content))
             {
-                Card card = _cardRepository.GetById(cardInfo.Key);
+                Card card = _cardsService.GetById(cardInfo.Key);
                 collection.Add(card, cardInfo.Value);
             }
 

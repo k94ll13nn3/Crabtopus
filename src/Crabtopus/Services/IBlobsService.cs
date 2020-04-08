@@ -1,8 +1,8 @@
 ﻿using Crabtopus.Models;
 
-namespace Crabtopus
+namespace Crabtopus.Services
 {
-    internal interface IBlobReader
+    internal interface IBlobsService
     {
         Blob GetPlayerCards();
 

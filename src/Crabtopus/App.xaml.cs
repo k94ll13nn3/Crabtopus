@@ -1,11 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using System.Windows;
 using System.Windows.Threading;
+using Crabtopus.Data;
+using Crabtopus.Infrastructure;
+using Crabtopus.Models;
+using Crabtopus.Services;
 using Crabtopus.ViewModels;
+using Crabtopus.Views;
 using Hardcodet.Wpf.TaskbarNotification;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Crabtopus
 {
@@ -41,7 +48,7 @@ namespace Crabtopus
             base.OnExit(e);
         }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
@@ -51,24 +58,31 @@ namespace Crabtopus
 
             _configuration = builder.Build();
 
+            // Read blobs
+            var logReader = new LogReader();
+
             var serviceCollection = new ServiceCollection();
             serviceCollection.Configure<ApplicationSettings>(_configuration.GetSection(nameof(ApplicationSettings)));
-
-            // Read blobs
-            // Read cards
-
-            var logReader = new LogReader();
+            serviceCollection.Configure<ApplicationSettings>(settings =>
+            {
+                settings.Endpoint = logReader.Endpoint;
+                settings.Version = logReader.Version;
+            });
             serviceCollection.AddHttpClient("mtgarena", c => c.BaseAddress = logReader.AssetsUri);
             serviceCollection.AddTransient<OverlayViewModel>();
             serviceCollection.AddTransient<Overlay>();
-            serviceCollection.AddSingleton<LogReader>(); // will be iblobreader
+            //serviceCollection.AddSingleton<ICardRepository>(cardManager); // TODO
+            serviceCollection.AddSingleton<IBlobsService>(logReader);
             _serviceProvider = serviceCollection.BuildServiceProvider();
 
-            string? processName = _configuration.GetSection(nameof(ApplicationSettings)).Get<ApplicationSettings>().Process;
+            // Read cards
+            IOptions<ApplicationSettings> settings = _serviceProvider.GetService<IOptions<ApplicationSettings>>();
+            var cardManager = new CardReader(settings, _serviceProvider.GetService<IHttpClientFactory>());
+            await cardManager.LoadCardsAsync();
 
             _taskbarIcon = LoadTaskbarIcon();
             Overlay overlay = _serviceProvider.GetService<Overlay>();
-            var overlayer = new Overlayer(processName, overlay, OverlayPosition.Top | OverlayPosition.Left);
+            var overlayer = new Overlayer(settings.Value.Process, overlay, OverlayPosition.Top | OverlayPosition.Left);
 
             var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
             timer.Tick += (s, e) => overlayer.Update();

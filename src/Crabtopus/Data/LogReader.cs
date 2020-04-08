@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Crabtopus.Models;
+using Crabtopus.Services;
 
-namespace Crabtopus
+namespace Crabtopus.Data
 {
-    internal class LogReader : IBlobReader
+    internal class LogReader : IBlobsService
     {
         private const string Delimiter = "<== ";
         private const string EndpointDelimiter = "EndpointHashPath = ";

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
-using static Crabtopus.NativeMethods;
+using static Crabtopus.Infrastructure.NativeMethods;
 
-namespace Crabtopus
+namespace Crabtopus.Infrastructure
 {
     internal class Overlayer
     {

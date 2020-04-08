@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Crabtopus
+namespace Crabtopus.Infrastructure
 {
     internal static class NativeMethods
     {

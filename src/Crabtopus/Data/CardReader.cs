@@ -8,21 +8,23 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Crabtopus.Models;
+using Crabtopus.Services;
+using Microsoft.Extensions.Options;
 
-namespace Crabtopus
+namespace Crabtopus.Data
 {
-    internal class CardManager : ICardRepository
+    internal class CardReader : ICardsService
     {
         private readonly string _version;
         private readonly string _endpoint;
         private readonly HttpClient _mtgarenaClient;
         private List<Card> _cards = new List<Card>();
 
-        public CardManager(LogReader logReader, IHttpClientFactory httpClientFactory)
+        public CardReader(IOptions<ApplicationSettings> options, IHttpClientFactory httpClientFactory)
         {
             _mtgarenaClient = httpClientFactory.CreateClient("mtgarena");
-            _version = logReader.Version;
-            _endpoint = logReader.Endpoint;
+            _version = options.Value.Version;
+            _endpoint = options.Value.Endpoint;
         }
 
         public Card Get(string setCode, string collectorNumber)

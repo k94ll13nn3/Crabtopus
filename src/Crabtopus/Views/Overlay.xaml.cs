@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using Crabtopus.ViewModels;
 
-namespace Crabtopus
+namespace Crabtopus.Views
 {
     internal partial class Overlay : Window
     {
