@@ -29,77 +29,54 @@ namespace Crabtopus.Data
 
         public async Task LoadCardsAsync()
         {
-            if (!Directory.Exists(_version))
+            GameInfo gameVersion = _database.Set<GameInfo>().FindOne(_ => true) ?? new GameInfo();
+
+            // Cards are loaded only if the version in base if different from the current game version.
+            if (gameVersion.Version != _version)
             {
-                Directory.CreateDirectory(_version);
-            }
-
-            try
-            {
-                string hash = await _mtgarenaClient.GetStringAsync(new Uri(_endpoint, UriKind.Relative));
-                byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync(new Uri($"Manifest_{hash}.mtga", UriKind.Relative));
-                string uncompressedManifest = Unzip(compressedManifest);
-                Manifest manifest = JsonSerializer.Deserialize<Manifest>(uncompressedManifest);
-                Asset cardsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_cards_", StringComparison.OrdinalIgnoreCase));
-                Asset localizationsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_loc_", StringComparison.OrdinalIgnoreCase));
-
-                string cardsHash = string.Empty;
-                string localizationHash = string.Empty;
-                string cardsHashPath = Path.Combine(_version, "cards.hash");
-                string localizationHashPath = Path.Combine(_version, "localization.hash");
-                if (File.Exists(cardsHashPath))
+                try
                 {
-                    cardsHash = File.ReadAllText(cardsHashPath);
-                }
+                    string hash = await _mtgarenaClient.GetStringAsync(new Uri(_endpoint, UriKind.Relative));
+                    byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync(new Uri($"Manifest_{hash}.mtga", UriKind.Relative));
+                    string uncompressedManifest = Unzip(compressedManifest);
+                    Manifest manifest = JsonSerializer.Deserialize<Manifest>(uncompressedManifest);
+                    Asset cardsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_cards_", StringComparison.OrdinalIgnoreCase));
+                    Asset localizationsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_loc_", StringComparison.OrdinalIgnoreCase));
 
-                if (File.Exists(localizationHashPath))
-                {
-                    localizationHash = File.ReadAllText(localizationHashPath);
-                }
+                    string cardsHash = gameVersion.CardsHash;
+                    string localizationHash = gameVersion.LocalizationHash;
 
-                string cardsPath = Path.Combine(_version, "cards.json");
-                if (File.Exists(cardsPath) && cardsHash == cardsAsset.Hash && localizationHash == localizationsAsset.Hash)
-                {
-                    List<Card> cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
-                    _database.Set<Card>().InsertBulk(cards);
-                }
-                else
-                {
-                    File.WriteAllText(cardsHashPath, cardsAsset.Hash);
-                    File.WriteAllText(localizationHashPath, localizationsAsset.Hash);
-
-                    string cardsFileName = cardsAsset.Name;
-                    byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(new Uri(cardsFileName, UriKind.Relative));
-                    string uncompressedCards = Unzip(compressedCards);
-                    List<Card> cards = JsonSerializer.Deserialize<List<Card>>(uncompressedCards);
-
-                    string localizationsFileName = localizationsAsset.Name;
-                    byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(new Uri(localizationsFileName, UriKind.Relative));
-                    string uncompressedLocalizations = Unzip(compressedLocalizations);
-                    Localization englishLocalization = JsonSerializer
-                        .Deserialize<List<Localization>>(uncompressedLocalizations)
-                        .First(x => x.IsoCode == "en-US");
-
-                    foreach (Card card in cards)
+                    if (cardsHash != cardsAsset.Hash || localizationHash != localizationsAsset.Hash)
                     {
-                        card.Title = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
-                    }
+                        gameVersion.Version = _version;
+                        gameVersion.CardsHash = cardsAsset.Hash;
+                        gameVersion.LocalizationHash = localizationsAsset.Hash;
 
-                    File.WriteAllText(cardsPath, JsonSerializer.Serialize(cards));
-                    _database.Set<Card>().InsertBulk(cards);
+                        string cardsFileName = cardsAsset.Name;
+                        byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(new Uri(cardsFileName, UriKind.Relative));
+                        string uncompressedCards = Unzip(compressedCards);
+                        List<Card> cards = JsonSerializer.Deserialize<List<Card>>(uncompressedCards);
+
+                        string localizationsFileName = localizationsAsset.Name;
+                        byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(new Uri(localizationsFileName, UriKind.Relative));
+                        string uncompressedLocalizations = Unzip(compressedLocalizations);
+                        Localization englishLocalization = JsonSerializer
+                            .Deserialize<List<Localization>>(uncompressedLocalizations)
+                            .First(x => x.IsoCode == "en-US");
+
+                        foreach (Card card in cards)
+                        {
+                            card.Title = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
+                        }
+
+                        _database.Set<GameInfo>().Upsert(gameVersion);
+                        _database.Set<Card>().DeleteAll();
+                        _database.Set<Card>().InsertBulk(cards);
+                    }
                 }
-            }
-            catch (HttpRequestException e)
-            {
-                string cardsPath = Path.Combine(_version, "cards.json");
-                if (File.Exists(cardsPath))
+                catch (HttpRequestException e)
                 {
-                    List<Card> cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
-                    _database.Set<Card>().InsertBulk(cards);
-                }
-                else
-                {
-                    throw new InvalidOperationException("Cannot read cards.", e);
+                    throw new InvalidOperationException("Cannot load cards.", e);
                 }
             }
         }

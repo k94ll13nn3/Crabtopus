@@ -11,7 +11,7 @@ namespace Crabtopus.Data
 
         public Database()
         {
-            _db = new LiteDatabase("filename=Kalendis.db;log=255");
+            _db = new LiteDatabase("filename=crabtopus.db;log=255");
         }
 
         public ILiteCollection<T> Set<T>() where T : IEntity
