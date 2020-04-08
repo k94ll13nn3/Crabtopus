@@ -8,7 +8,7 @@ using Crabtopus.Models;
 
 namespace Crabtopus
 {
-    internal class LogReader
+    internal class LogReader : IBlobReader
     {
         private const string Delimiter = "<== ";
         private const string EndpointDelimiter = "EndpointHashPath = ";
@@ -49,6 +49,21 @@ namespace Crabtopus
         public string Version { get; }
 
         public string Endpoint { get; }
+
+        public Blob GetPlayerCards()
+        {
+            return Blobs.First(x => x.Method == "GetPlayerCardsV3");
+        }
+
+        public Blob GetPlayerInventory()
+        {
+            return Blobs.First(x => x.Method == "GetPlayerInventory");
+        }
+
+        public Blob GetCombinedRankInfo()
+        {
+            return Blobs.First(x => x.Method == "GetCombinedRankInfo");
+        }
 
         private string GetEndpoint(in ReadOnlySpan<char> content)
         {

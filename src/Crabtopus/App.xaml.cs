@@ -1,24 +1,20 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using Crabtopus.ViewModels;
 using Hardcodet.Wpf.TaskbarNotification;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Crabtopus
 {
     public partial class App : Application, IDisposable
     {
-        private readonly ServiceProvider _serviceProvider;
+        private IServiceProvider? _serviceProvider;
         private TaskbarIcon? _taskbarIcon;
+        private IConfiguration? _configuration;
         private bool _disposedValue;
-
-        public App()
-        {
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            _serviceProvider = serviceCollection.BuildServiceProvider();
-        }
 
         public void Dispose()
         {
@@ -33,7 +29,6 @@ namespace Crabtopus
                 if (disposing)
                 {
                     _taskbarIcon?.Dispose();
-                    _serviceProvider?.Dispose();
                 }
 
                 _disposedValue = true;
@@ -50,9 +45,30 @@ namespace Crabtopus
         {
             base.OnStartup(e);
 
+            IConfigurationBuilder builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+            _configuration = builder.Build();
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.Configure<ApplicationSettings>(_configuration.GetSection(nameof(ApplicationSettings)));
+
+            // Read blobs
+            // Read cards
+
+            var logReader = new LogReader();
+            serviceCollection.AddHttpClient("mtgarena", c => c.BaseAddress = logReader.AssetsUri);
+            serviceCollection.AddTransient<OverlayViewModel>();
+            serviceCollection.AddTransient<Overlay>();
+            serviceCollection.AddSingleton<LogReader>(); // will be iblobreader
+            _serviceProvider = serviceCollection.BuildServiceProvider();
+
+            string? processName = _configuration.GetSection(nameof(ApplicationSettings)).Get<ApplicationSettings>().Process;
+
             _taskbarIcon = LoadTaskbarIcon();
             Overlay overlay = _serviceProvider.GetService<Overlay>();
-            var overlayer = new Overlayer("firefox", overlay, OverlayPosition.Top | OverlayPosition.Left);
+            var overlayer = new Overlayer(processName, overlay, OverlayPosition.Top | OverlayPosition.Left);
 
             var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
             timer.Tick += (s, e) => overlayer.Update();
@@ -63,15 +79,6 @@ namespace Crabtopus
         private TaskbarIcon LoadTaskbarIcon()
         {
             return (TaskbarIcon)FindResource("NotifyIcon");
-        }
-
-        private void ConfigureServices(IServiceCollection services)
-        {
-            var logReader = new LogReader();
-            services.AddHttpClient("mtgarena", c => c.BaseAddress = logReader.AssetsUri);
-            services.AddTransient<OverlayViewModel>();
-            services.AddTransient<Overlay>();
-            services.AddSingleton<LogReader>();
         }
     }
 }

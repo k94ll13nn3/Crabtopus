@@ -11,7 +11,7 @@ using Crabtopus.Models;
 
 namespace Crabtopus
 {
-    internal class CardManager
+    internal class CardManager : ICardRepository
     {
         private readonly string _version;
         private readonly string _endpoint;
@@ -25,9 +25,9 @@ namespace Crabtopus
             _endpoint = logReader.Endpoint;
         }
 
-        public Card Get(string set, string collectorNumber)
+        public Card Get(string setCode, string collectorNumber)
         {
-            return _cards.First(x => x.Set == set && x.CollectorNumber == collectorNumber);
+            return _cards.First(x => x.Set == setCode && x.CollectorNumber == collectorNumber);
         }
 
         public Card GetById(string id)
