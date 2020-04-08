@@ -3,18 +3,18 @@ using System.Windows.Input;
 
 namespace Crabtopus.ViewModels
 {
-    internal class DelegateCommand<T> : ICommand
+    internal class DelegateCommand : ICommand
     {
-        private readonly Predicate<object> _canExecute;
+        private readonly Func<bool> _canExecute;
 
-        private readonly Action<T> _execute;
+        private readonly Action _execute;
 
-        public DelegateCommand(Action<T> execute)
-            : this(execute, _ => true)
+        public DelegateCommand(Action execute)
+            : this(execute, () => true)
         {
         }
 
-        public DelegateCommand(Action<T> execute, Predicate<object> canExecute)
+        public DelegateCommand(Action execute, Func<bool> canExecute)
         {
             _execute = execute;
             _canExecute = canExecute;
@@ -26,13 +26,13 @@ namespace Crabtopus.ViewModels
         /// <inheritdoc/>
         public bool CanExecute(object parameter)
         {
-            return _canExecute(parameter);
+            return _canExecute();
         }
 
         /// <inheritdoc/>
         public void Execute(object parameter)
         {
-            _execute((T)parameter);
+            _execute();
         }
 
         public void UpdateCanExecuteChanged()

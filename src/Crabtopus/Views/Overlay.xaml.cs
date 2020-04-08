@@ -11,14 +11,15 @@ namespace Crabtopus.Views
             InitializeComponent();
 
             DataContext = viewModel;
+
+            IsVisibleChanged += Overlay_IsVisibleChanged;
         }
 
-        private void ToggleContentPopup(object sender, RoutedEventArgs e)
+        private void Overlay_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            ContentPopup.SetCurrentValue(Popup.IsOpenProperty, !ContentPopup.IsOpen);
-            if (ContentPopup.IsOpen)
+            if (Visibility != Visibility.Visible)
             {
-                ContentPopup.Focus();
+                ContentPopup.SetCurrentValue(Popup.IsOpenProperty, false);
             }
         }
     }

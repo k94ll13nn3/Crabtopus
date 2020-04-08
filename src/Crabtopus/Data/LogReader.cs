@@ -82,7 +82,7 @@ namespace Crabtopus.Data
         {
             var blobs = new List<Blob>();
             int currentIndex = 0;
-            var names = new[] { "PlayerInventory.GetPlayerCardsV3", "PlayerInventory.GetPlayerInventory", "Event.GetCombinedRankInfo" };
+            string[] wantedBlobs = new[] { "PlayerInventory.GetPlayerCardsV3", "PlayerInventory.GetPlayerInventory", "Event.GetCombinedRankInfo" };
             while (currentIndex < content.Length)
             {
                 int indexOfDelimiter = content.Slice(currentIndex).IndexOf(Delimiter);
@@ -111,7 +111,7 @@ namespace Crabtopus.Data
 
                 string text = content.Slice(startIndex, lengthOfText).ToString();
                 string[] splittedData = text.Split(new[] { '.', ' ' }, 3);
-                if (names.Contains($"{splittedData[0]}.{splittedData[1]}"))
+                if (wantedBlobs.Contains($"{splittedData[0]}.{splittedData[1]}"))
                 {
                     blobs.Add(new Blob(splittedData[0], splittedData[1], splittedData[2]));
                 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Windows.Input;
 using Crabtopus.Models;
 using Crabtopus.Services;
 
@@ -18,14 +19,28 @@ namespace Crabtopus.ViewModels
         private readonly CombinedRankInfo _combinedRankInfo;
         private string _title = "CRABTOPUS";
         private string _text = string.Empty;
+        private bool _displayPopup;
 
         public OverlayViewModel(IBlobsService blobsService, ICardsService cardsService)
         {
+            ShowPopupCommand = new DelegateCommand(() => DisplayPopup = true);
+            ClosePopupCommand = new DelegateCommand(() => DisplayPopup = false);
+
             _cardsService = cardsService;
             _collection = LoadCollection(blobsService.GetPlayerCards());
             _inventory = LoadInventory(blobsService.GetPlayerInventory());
             _combinedRankInfo = LoadCombinedRankInfo(blobsService.GetCombinedRankInfo());
             Load();
+        }
+
+        public ICommand ShowPopupCommand { get; set; }
+
+        public ICommand ClosePopupCommand { get; set; }
+
+        public bool DisplayPopup
+        {
+            get { return _displayPopup; }
+            set { SetProperty(ref _displayPopup, value); }
         }
 
         public string Title

@@ -66,9 +66,12 @@
     </Window.Resources>
 
     <Grid>
-        <Button x:Name="PrimaryButton" Style="{StaticResource MyButtonStyle}" Content="{Binding Title}" Click="ToggleContentPopup"></Button>
+        <Button x:Name="PrimaryButton" Style="{StaticResource MyButtonStyle}" Content="{Binding Title}" Command="{Binding ShowPopupCommand}"></Button>
 
-        <Popup x:Name="ContentPopup" PlacementTarget="{Binding ElementName=PrimaryButton}" Placement="Bottom" AllowsTransparency="True" StaysOpen="False" LostFocus="ToggleContentPopup">
+        <Popup x:Name="ContentPopup" 
+               PlacementTarget="{Binding ElementName=PrimaryButton}" Placement="Bottom" AllowsTransparency="True" 
+               StaysOpen="False"
+               IsOpen="{Binding DisplayPopup, Mode=TwoWay}">
             <Border Width="300" Height="500" BorderBrush="Transparent" BorderThickness="0,2,0,2" Background="#3949ab">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -82,7 +85,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Text="{Binding Title}" Foreground="White"></TextBlock>
-                    <Button Click="ToggleContentPopup" Grid.Column="1">X</Button>
+                    <Button Command="{Binding ClosePopupCommand}" Grid.Column="1">X</Button>
 
                     <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2">
                         <TextBlock Text="{Binding Text}"  Foreground="White"></TextBlock>
