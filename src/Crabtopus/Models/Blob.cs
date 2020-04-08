@@ -6,15 +6,14 @@ namespace Crabtopus.Models
     [DebuggerDisplay("{Name}")]
     internal class Blob
     {
-        public Blob(string data)
+        public Blob(string type, string method, string data)
         {
-            string[] splittedData = data.Split(new[] { '.', ' ' }, 3);
-            Type = splittedData[0];
-            Method = splittedData[1];
-            DataResponse response = JsonSerializer.Deserialize<DataResponse>(splittedData[2]);
+            Type = type;
+            Method = method;
+            DataResponse response = JsonSerializer.Deserialize<DataResponse>(data);
             Id = response.Id;
             Content = response.Payload?.ToString() ?? string.Empty;
-            IsArray = Content[0] == '[';
+            IsArray = Content.Length > 0 && Content[0] == '[';
         }
 
         public string Type { get; }
