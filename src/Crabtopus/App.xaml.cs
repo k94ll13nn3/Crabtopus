@@ -20,7 +20,6 @@ namespace Crabtopus
     {
         private IServiceProvider? _serviceProvider;
         private TaskbarIcon? _taskbarIcon;
-        private IConfiguration? _configuration;
         private bool _disposedValue;
 
         public void Dispose()
@@ -56,13 +55,13 @@ namespace Crabtopus
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-            _configuration = builder.Build();
+            IConfigurationRoot? configuration = builder.Build();
 
             // Read blobs
             var logReader = new LogReader();
 
             var serviceCollection = new ServiceCollection();
-            serviceCollection.Configure<ApplicationSettings>(_configuration.GetSection(nameof(ApplicationSettings)));
+            serviceCollection.Configure<ApplicationSettings>(configuration.GetSection(nameof(ApplicationSettings)));
             serviceCollection.Configure<ApplicationSettings>(settings =>
             {
                 settings.Endpoint = logReader.Endpoint;

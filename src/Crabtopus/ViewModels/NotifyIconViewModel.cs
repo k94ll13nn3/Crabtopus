@@ -5,6 +5,6 @@ namespace Crabtopus.ViewModels
 {
     internal class NotifyIconViewModel : ViewModelBase
     {
-        public ICommand ExitApplicationCommand => new DelegateCommand<object>(_ => Application.Current.Shutdown());
+        public static ICommand ExitApplicationCommand => new DelegateCommand<object>(_ => Application.Current.Shutdown());
     }
 }
