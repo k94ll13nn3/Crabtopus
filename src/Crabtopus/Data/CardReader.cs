@@ -8,33 +8,23 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Crabtopus.Models;
-using Crabtopus.Services;
 using Microsoft.Extensions.Options;
 
 namespace Crabtopus.Data
 {
-    internal class CardReader : ICardsService
+    internal class CardReader
     {
         private readonly string _version;
         private readonly string _endpoint;
         private readonly HttpClient _mtgarenaClient;
-        private List<Card> _cards = new List<Card>();
+        private readonly Database _database;
 
-        public CardReader(IOptions<ApplicationSettings> options, IHttpClientFactory httpClientFactory)
+        public CardReader(IOptions<ApplicationSettings> options, IHttpClientFactory httpClientFactory, Database database)
         {
             _mtgarenaClient = httpClientFactory.CreateClient("mtgarena");
             _version = options.Value.Version;
             _endpoint = options.Value.Endpoint;
-        }
-
-        public Card Get(string setCode, string collectorNumber)
-        {
-            return _cards.First(x => x.Set == setCode && x.CollectorNumber == collectorNumber);
-        }
-
-        public Card GetById(string id)
-        {
-            return _cards.First(x => $"{x.Id}" == id);
+            _database = database;
         }
 
         public async Task LoadCardsAsync()
@@ -70,7 +60,8 @@ namespace Crabtopus.Data
                 string cardsPath = Path.Combine(_version, "cards.json");
                 if (File.Exists(cardsPath) && cardsHash == cardsAsset.Hash && localizationHash == localizationsAsset.Hash)
                 {
-                    _cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
+                    List<Card> cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
+                    _database.Set<Card>().InsertBulk(cards);
                 }
                 else
                 {
@@ -94,8 +85,8 @@ namespace Crabtopus.Data
                         card.Title = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
                     }
 
-                    _cards = cards;
-                    File.WriteAllText(cardsPath, JsonSerializer.Serialize(_cards));
+                    File.WriteAllText(cardsPath, JsonSerializer.Serialize(cards));
+                    _database.Set<Card>().InsertBulk(cards);
                 }
             }
             catch (HttpRequestException e)
@@ -103,7 +94,8 @@ namespace Crabtopus.Data
                 string cardsPath = Path.Combine(_version, "cards.json");
                 if (File.Exists(cardsPath))
                 {
-                    _cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
+                    List<Card> cards = JsonSerializer.Deserialize<List<Card>>(File.ReadAllText(cardsPath));
+                    _database.Set<Card>().InsertBulk(cards);
                 }
                 else
                 {

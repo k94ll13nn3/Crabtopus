@@ -71,13 +71,15 @@ namespace Crabtopus
             serviceCollection.AddHttpClient("mtgarena", c => c.BaseAddress = logReader.AssetsUri);
             serviceCollection.AddTransient<OverlayViewModel>();
             serviceCollection.AddTransient<Overlay>();
-            //serviceCollection.AddSingleton<ICardRepository>(cardManager); // TODO
+            serviceCollection.AddSingleton<ICardsService, CardsService>();
             serviceCollection.AddSingleton<IBlobsService>(logReader);
+            serviceCollection.AddSingleton<Database>();
             _serviceProvider = serviceCollection.BuildServiceProvider();
 
             // Read cards
             IOptions<ApplicationSettings> settings = _serviceProvider.GetService<IOptions<ApplicationSettings>>();
-            var cardManager = new CardReader(settings, _serviceProvider.GetService<IHttpClientFactory>());
+
+            var cardManager = new CardReader(settings, _serviceProvider.GetService<IHttpClientFactory>(), _serviceProvider.GetService<Database>());
             await cardManager.LoadCardsAsync();
 
             _taskbarIcon = LoadTaskbarIcon();

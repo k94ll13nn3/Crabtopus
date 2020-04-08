@@ -210,7 +210,7 @@ namespace Crabtopus
             var collection = new Dictionary<Card, int>();
             foreach (KeyValuePair<string, int> cardInfo in JsonSerializer.Deserialize<Dictionary<string, int>>(collectionBlob.Content))
             {
-                Card card = _cardsService.GetById(cardInfo.Key);
+                Card card = _cardsService.GetById(int.Parse(cardInfo.Key));
                 collection.Add(card, cardInfo.Value);
             }
 

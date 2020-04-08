@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Crabtopus.Data;
 
 namespace Crabtopus.Models
 {
-    internal class Card : IEquatable<Card>
+    internal class Card : IEquatable<Card>, IEntity
     {
         [JsonPropertyName("grpid")]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         [JsonPropertyName("titleId")]
         public long TitleId { get; set; }
