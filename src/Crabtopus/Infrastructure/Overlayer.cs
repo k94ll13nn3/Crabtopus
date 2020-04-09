@@ -9,26 +9,29 @@ using static Crabtopus.Infrastructure.NativeMethods;
 
 namespace Crabtopus.Infrastructure
 {
+    // Fix for windows 10 rect size: https://stackoverflow.com/a/34143777.
+    // Display overlay on another application: https://stackoverflow.com/a/15715587.
+    // Disable focus for window: https://stackoverflow.com/a/12628353.
     internal class Overlayer
     {
         private readonly string _processName;
         private readonly Window _window;
         private readonly OverlayPosition _windowPosition;
+        private readonly WindowInteropHelper _wih;
 
         public Overlayer(string processName, Window window, OverlayPosition windowPosition)
         {
             _processName = processName;
             _window = window;
             _windowPosition = windowPosition;
+
+            _wih = new WindowInteropHelper(_window);
+            SetWindowLong(_wih.Handle, GWL_EXSTYLE, GetWindowLong(_wih.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
         }
 
         [SuppressMessage("Performance", "RCS1096:Use bitwise operation instead of calling 'HasFlag'.", Justification = "Enum.HasFlag is 'fixed' since .NET Core 2.1.")]
         public void Update()
         {
-            // Fix for windows 10 rect size: https://stackoverflow.com/a/34143777.
-            // Display overlay on another application: https://stackoverflow.com/a/15715587.
-            // Disable focus for window: https://stackoverflow.com/a/12628353.
-
             Process process = Process.GetProcessesByName(_processName).FirstOrDefault();
             if (process != null)
             {
@@ -38,9 +41,7 @@ namespace Crabtopus.Infrastructure
                 IntPtr foregroundWindowHandle = GetForegroundWindow();
 
                 // Show the overlay if the process is the foreground window or if _window is the foreground window.
-                WindowInteropHelper wih = new WindowInteropHelper(_window);
-                SetWindowLong(wih.Handle, GWL_EXSTYLE, GetWindowLong(wih.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
-                if (foregroundWindowHandle == processWindowHandle || foregroundWindowHandle == wih.Handle)
+                if (foregroundWindowHandle == processWindowHandle || foregroundWindowHandle == _wih.Handle)
                 {
                     if (_windowPosition.HasFlag(OverlayPosition.Top))
                     {
