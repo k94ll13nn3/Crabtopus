@@ -7,6 +7,68 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/NotifyIconResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            
+            <Style x:Key="FocusVisual">
+                <Setter Property="Control.Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Rectangle Margin="2" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" StrokeThickness="1" StrokeDashArray="1 2" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <SolidColorBrush x:Key="Button.Static.Background" Color="#3949AB" />
+            <SolidColorBrush x:Key="Button.Static.Foreground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="Button.Pressed.Background" Color="#6F74DD" />
+            <SolidColorBrush x:Key="Button.Pressed.Foreground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#00227B" />
+            <SolidColorBrush x:Key="Button.MouseOver.Foreground" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4" />
+            <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FFFFFF" />
+            
+            <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}" />
+                <Setter Property="Background" Value="{DynamicResource Button.Static.Background}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontFamily" Value="pack://application:,,,/Resources/#Righteous" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Grid SnapsToDevicePixels="true">
+                                <Rectangle x:Name="BackgroundVisual" Fill="{TemplateBinding Background}" />
+                                <Rectangle x:Name="PressedVisual" Fill="{DynamicResource Button.Pressed.Background}" Opacity="0" />
+                                <Rectangle x:Name="DisabledVisual" Fill="{DynamicResource Button.Disabled.Background}" Opacity="0" />
+                                <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsDefaulted" Value="true" />
+                                <Trigger Property="IsMouseOver" Value="true">
+                                    <Setter Property="Opacity" TargetName="BackgroundVisual" Value="1" />
+                                    <Setter Property="Fill" TargetName="BackgroundVisual" Value="{DynamicResource Button.MouseOver.Background}" />
+                                    <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{DynamicResource Button.MouseOver.Foreground}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource Button.MouseOver.Foreground}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="true">
+                                    <Setter Property="Opacity" TargetName="PressedVisual" Value="1" />
+                                    <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{DynamicResource Button.Pressed.Foreground}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource Button.Pressed.Foreground}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="false">
+                                    <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{DynamicResource Button.Disabled.Foreground}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource Button.Disabled.Foreground}" />
+                                    <Setter Property="Opacity" TargetName="DisabledVisual" Value="1" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
