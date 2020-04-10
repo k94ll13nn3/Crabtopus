@@ -10,6 +10,7 @@
         Topmost="True"
         Title="Overlay" Height="35" Width="130"
         xmlns:vm="clr-namespace:Crabtopus.ViewModels"
+        xmlns:views="clr-namespace:Crabtopus.Views"
         d:DataContext="{d:DesignInstance Type=vm:OverlayViewModel, IsDesignTimeCreatable=False}">
     <Window.Resources>
         <Style x:Key="FocusVisual">
@@ -72,26 +73,7 @@
                PlacementTarget="{Binding ElementName=PrimaryButton}" Placement="Bottom" AllowsTransparency="True" 
                StaysOpen="False"
                IsOpen="{Binding DisplayPopup, Mode=TwoWay}">
-            <Border Width="300" Height="500" BorderBrush="Transparent" BorderThickness="0,2,0,2" Background="#3949ab">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Text="{Binding Title}" Foreground="White"></TextBlock>
-                    <Button Command="{Binding ClosePopupCommand}" Grid.Column="1">X</Button>
-
-                    <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2">
-                        <TextBlock Text="{Binding Text}"  Foreground="White"></TextBlock>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
+            <views:DecksLoader></views:DecksLoader>
         </Popup>
     </Grid>
 </Window>
