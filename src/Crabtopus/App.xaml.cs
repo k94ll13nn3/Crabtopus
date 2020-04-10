@@ -71,6 +71,7 @@ namespace Crabtopus
             serviceCollection.AddTransient<OverlayViewModel>();
             serviceCollection.AddTransient<Overlay>();
             serviceCollection.AddSingleton<ICardsService, CardsService>();
+            serviceCollection.AddSingleton<IFetchService, FetchService>();
             serviceCollection.AddSingleton<IBlobsService>(logReader);
             serviceCollection.AddSingleton<Database>();
             _serviceProvider = serviceCollection.BuildServiceProvider();

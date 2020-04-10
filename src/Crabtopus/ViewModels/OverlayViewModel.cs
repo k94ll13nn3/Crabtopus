@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Crabtopus.Models;
+using Crabtopus.Services;
 
 namespace Crabtopus.ViewModels
 {
@@ -9,33 +11,22 @@ namespace Crabtopus.ViewModels
         private string _title = "CRABTOPUS";
         private string _text = string.Empty;
         private bool _displayPopup;
+        private IEnumerable<Tournament> _tournaments;
 
-        public OverlayViewModel()
+        public OverlayViewModel(IFetchService fetchService)
         {
             ShowPopupCommand = new DelegateCommand(() => DisplayPopup = true);
             ClosePopupCommand = new DelegateCommand(() => DisplayPopup = false);
 
-            Tournaments = new List<Tournament>
-            {
-                new Tournament{ Name = "Mythic Point Challenge 10 Win Decks",
-                    Decks =
-                    {
-                        new Deck { Name = "Sultai Control"},
-                        new Deck { Name = "Simic Flash"},
-                        new Deck { Name = "Temur Flash"},
-                    }
-                },
-                new Tournament{ Name = "Daily Qualifier Week Two @ MagicFest Online",
-                    Decks =
-                    {
-                        new Deck { Name = "Red Deck Wins"},
-                        new Deck { Name = "Temur Reclamation"},
-                    }
-                }
-            };
+            Tournaments = new List<Tournament>();
+            Task.Run(async () => Tournaments = await fetchService.GetEventsAsync());
         }
 
-        public ICollection<Tournament> Tournaments { get; set; }
+        public IEnumerable<Tournament> Tournaments
+        {
+            get => _tournaments;
+            set => SetProperty(ref _tournaments, value);
+        }
 
         public ICommand ShowPopupCommand { get; set; }
 

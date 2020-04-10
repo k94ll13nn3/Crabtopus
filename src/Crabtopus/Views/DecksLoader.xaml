@@ -128,7 +128,7 @@
                                 <ItemsControl Margin="5,0,0,0" ItemsSource="{Binding Decks}" HorizontalContentAlignment="Stretch">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Name}" Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Name}" Foreground="White" TextTrimming="CharacterEllipsis" ToolTip="{Binding Tooltip}"/>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>

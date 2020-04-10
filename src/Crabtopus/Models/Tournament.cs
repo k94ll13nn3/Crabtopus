@@ -1,11 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Crabtopus.Models
 {
-    public class Tournament
+    internal class Tournament
     {
-        public string Name { get; set; } = string.Empty;
+        public Tournament(int id, string name, DateTime date, int rating, IEnumerable<Deck> decks)
+        {
+            Id = id;
+            Name = name;
+            Date = date;
+            Rating = rating;
+            Decks = decks;
+        }
 
-        public ICollection<Deck> Decks { get; } = new List<Deck>();
+        public int Id { get; }
+
+        public string Name { get; }
+
+        public DateTime Date { get; }
+
+        public int Rating { get; }
+
+        public IEnumerable<Deck> Decks { get; }
     }
 }
