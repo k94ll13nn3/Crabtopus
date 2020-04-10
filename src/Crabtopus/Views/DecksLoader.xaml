@@ -13,9 +13,85 @@
         <SolidColorBrush x:Key="Button.Pressed.Foreground" Color="LightGray" />
         <SolidColorBrush x:Key="Button.MouseOver.Background" Color="Transparent" />
         <SolidColorBrush x:Key="Button.MouseOver.Foreground" Color="LightGray" />
+        <SolidColorBrush x:Key="Expander.Static.Arrow.Stroke" Color="White"/>
+        <SolidColorBrush x:Key="Expander.MouseOver.Arrow.Stroke" Color="White"/>
+        <SolidColorBrush x:Key="Expander.Pressed.Arrow.Stroke" Color="White"/>
+        <SolidColorBrush x:Key="Expander.Disabled.Arrow.Stroke" Color="White"/>
+        <Style x:Key="ExpanderHeaderFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Border>
+                            <Rectangle Margin="0" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="1" Stroke="Black"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ExpanderDownHeaderStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border Padding="{TemplateBinding Padding}">
+                            <Grid Background="Transparent" SnapsToDevicePixels="False" Height="24">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="19"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Viewbox Width="19" Height="19">
+                                    <Canvas Width="24" Height="24">
+                                        <Path x:Name="arrow"  Data="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" HorizontalAlignment="Center" SnapsToDevicePixels="false" StrokeThickness="2" Stroke="{StaticResource Expander.Static.Arrow.Stroke}" VerticalAlignment="Center"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0" RecognizesAccessKey="True" SnapsToDevicePixels="True" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter Property="Data" TargetName="arrow" Value="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Stroke" TargetName="arrow" Value="{StaticResource Expander.MouseOver.Arrow.Stroke}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Stroke" TargetName="arrow" Value="{StaticResource Expander.Pressed.Arrow.Stroke}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Stroke" TargetName="arrow" Value="{StaticResource Expander.Disabled.Arrow.Stroke}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ExpanderStyle1" TargetType="{x:Type Expander}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Expander}">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="3" SnapsToDevicePixels="true">
+                            <DockPanel>
+                                <ToggleButton x:Name="HeaderSite" ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}" DockPanel.Dock="Top" FontStyle="{TemplateBinding FontStyle}" FontStretch="{TemplateBinding FontStretch}" FontWeight="{TemplateBinding FontWeight}" FocusVisualStyle="{StaticResource ExpanderHeaderFocusVisual}" FontFamily="{TemplateBinding FontFamily}" Foreground="{TemplateBinding Foreground}" FontSize="{TemplateBinding FontSize}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" MinHeight="0" MinWidth="0" Margin="1" Padding="{TemplateBinding Padding}" Style="{StaticResource ExpanderDownHeaderStyle}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                <ContentPresenter x:Name="ExpandSite" DockPanel.Dock="Bottom" Focusable="false" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Visibility="Collapsed"/>
+                            </DockPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="true">
+                                <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <Border Width="300" Height="500" BorderBrush="Transparent" BorderThickness="0,2,0,2" Background="#282c34">
+    <Border Width="300" Height="500" BorderBrush="#3949AB" BorderThickness="2" Margin="5" Background="#282c34">
+        <Border.Effect>
+            <DropShadowEffect ShadowDepth="3"/>
+        </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -38,24 +114,28 @@
                 </Viewbox>
             </Button>
 
-            <ScrollViewer Grid.RowSpan="2" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto" Panel.ZIndex="1">
-                <TreeView Margin="5" Background="Transparent" BorderThickness="0" Foreground="White" FontFamily="pack://application:,,,/Resources/#Righteous" >
-                    <TreeViewItem Header="Mythic Point Challenge 10 Win Decks" Foreground="White">
-                        <TreeViewItem Header="Jesper Aaberg" Foreground="White"/>
-                        <TreeViewItem Header="Jesper Aaberg" Foreground="White"/>
-                        <TreeViewItem Header="Jesper Aaberg" Foreground="White"/>
-                    </TreeViewItem>
-                    <TreeViewItem Header="MagicFest Online Weekly Championship" Foreground="White">
-                        <TreeViewItem Header="Dominik Paiha" Foreground="White"/>
-                        <TreeViewItem Header="Dominik Paiha" Foreground="White"/>
-                        <TreeViewItem Header="Dominik Paiha" Foreground="White"/>
-                    </TreeViewItem>
-                    <TreeViewItem Header="Daily Qualifier Week Two @ MagicFest Online" Foreground="White">
-                        <TreeViewItem Header="Dominik Paiha" Foreground="White"/>
-                        <TreeViewItem Header="Dominik Paiha" Foreground="White"/>
-                        <TreeViewItem Header="Dominik Paiha" Foreground="White"/>
-                    </TreeViewItem>
-                </TreeView>
+            <TextBlock Text="Decks" FontSize="14" Foreground="White" VerticalAlignment="Center" Margin="5" FontFamily="pack://application:,,,/Resources/#Righteous"></TextBlock>
+            <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto" Panel.ZIndex="1">
+                <ItemsControl ItemsSource="{Binding Tournaments}" HorizontalContentAlignment="Stretch">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Expander Style="{DynamicResource ExpanderStyle1}" Header="{Binding Name}"  Foreground="White" ExpandDirection="Down" FontSize="14" FontFamily="pack://application:,,,/Resources/#Righteous">
+                                <Expander.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding }" Foreground="White" TextTrimming="CharacterEllipsis" ToolTip="{Binding }"/>
+                                    </DataTemplate>
+                                </Expander.HeaderTemplate>
+                                <ItemsControl Margin="5,0,0,0" ItemsSource="{Binding Decks}" HorizontalContentAlignment="Stretch">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" Foreground="White" TextTrimming="CharacterEllipsis"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Expander>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </Grid>
     </Border>

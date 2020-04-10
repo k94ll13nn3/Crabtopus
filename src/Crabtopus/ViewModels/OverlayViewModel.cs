@@ -10,6 +10,17 @@ using Crabtopus.Services;
 
 namespace Crabtopus.ViewModels
 {
+    public class TmpTournament
+    {
+        public string Name { get; set; } = string.Empty;
+        public ICollection<TmpDeck> Decks { get; } = new List<TmpDeck>();
+    }
+
+    public class TmpDeck
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
     internal class OverlayViewModel : ViewModelBase
     {
         private static readonly Regex CardLineRegex = new Regex(@"(\d{1,2}) (.*?) \((\w+)\) (\w+)", RegexOptions.Compiled);
@@ -31,7 +42,28 @@ namespace Crabtopus.ViewModels
             _inventory = LoadInventory(blobsService.GetPlayerInventory());
             _combinedRankInfo = LoadCombinedRankInfo(blobsService.GetCombinedRankInfo());
             Load();
+
+            Tournaments = new List<TmpTournament>
+            {
+                new TmpTournament{ Name = "Mythic Point Challenge 10 Win Decks",
+                    Decks =
+                    {
+                        new TmpDeck { Name = "Sultai Control"},
+                        new TmpDeck { Name = "Simic Flash"},
+                        new TmpDeck { Name = "Temur Flash"},
+                    }
+                },
+                new TmpTournament{ Name = "Daily Qualifier Week Two @ MagicFest Online",
+                    Decks =
+                    {
+                        new TmpDeck { Name = "Red Deck Wins"},
+                        new TmpDeck { Name = "Temur Reclamation"},
+                    }
+                }
+            };
         }
+
+        public ICollection<TmpTournament> Tournaments { get; set; }
 
         public ICommand ShowPopupCommand { get; set; }
 
@@ -39,20 +71,20 @@ namespace Crabtopus.ViewModels
 
         public bool DisplayPopup
         {
-            get { return _displayPopup; }
-            set { SetProperty(ref _displayPopup, value); }
+            get => _displayPopup;
+            set => SetProperty(ref _displayPopup, value);
         }
 
         public string Title
         {
-            get { return _title; }
-            set { SetProperty(ref _title, value); }
+            get => _title;
+            set => SetProperty(ref _title, value);
         }
 
         public string Text
         {
-            get { return _text; }
-            set { SetProperty(ref _text, value); }
+            get => _text;
+            set => SetProperty(ref _text, value);
         }
 
         private static Deck ParseDeckList(IEnumerable<string> deckList)
@@ -238,15 +270,9 @@ namespace Crabtopus.ViewModels
             return collection;
         }
 
-        private Wildcards LoadInventory(Blob inventoryBlob)
-        {
-            return JsonSerializer.Deserialize<Wildcards>(inventoryBlob.Content);
-        }
+        private Wildcards LoadInventory(Blob inventoryBlob) => JsonSerializer.Deserialize<Wildcards>(inventoryBlob.Content);
 
-        private CombinedRankInfo LoadCombinedRankInfo(Blob inventoryBlob)
-        {
-            return JsonSerializer.Deserialize<CombinedRankInfo>(inventoryBlob.Content);
-        }
+        private CombinedRankInfo LoadCombinedRankInfo(Blob inventoryBlob) => JsonSerializer.Deserialize<CombinedRankInfo>(inventoryBlob.Content);
 
         private void Load()
         {
