@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Crabtopus.Models;
+using Crabtopus.Models.Json;
 using Crabtopus.Services;
 
 namespace Crabtopus.Data
@@ -111,9 +113,10 @@ namespace Crabtopus.Data
 
                 string text = content.Slice(startIndex, lengthOfText).ToString();
                 string[] splittedData = text.Split(new[] { '.', ' ' }, 3);
+                DataResponse response = JsonSerializer.Deserialize<DataResponse>(splittedData[2]);
                 if (wantedBlobs.Contains($"{splittedData[0]}.{splittedData[1]}"))
                 {
-                    blobs.Add(new Blob(splittedData[0], splittedData[1], splittedData[2]));
+                    blobs.Add(new Blob(splittedData[0], splittedData[1], response.Id, response.Payload?.ToString() ?? string.Empty));
                 }
             }
 

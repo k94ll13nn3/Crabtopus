@@ -1,18 +1,13 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
-
-namespace Crabtopus.Models
+﻿namespace Crabtopus.Models
 {
-    [DebuggerDisplay("{Name}")]
     internal class Blob
     {
-        public Blob(string type, string method, string data)
+        public Blob(string type, string method, int id, string content)
         {
             Type = type;
             Method = method;
-            DataResponse response = JsonSerializer.Deserialize<DataResponse>(data);
-            Id = response.Id;
-            Content = response.Payload?.ToString() ?? string.Empty;
+            Id = id;
+            Content = content;
             IsArray = Content.Length > 0 && Content[0] == '[';
         }
 

@@ -1,7 +1,6 @@
-﻿
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace Crabtopus.Models
+namespace Crabtopus.Models.Json
 {
     internal class Wildcards
     {

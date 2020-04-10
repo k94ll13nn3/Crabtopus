@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Crabtopus.Models;
+using Crabtopus.Models.Json;
 using Microsoft.Extensions.Options;
 
 namespace Crabtopus.Data
@@ -36,7 +37,7 @@ namespace Crabtopus.Data
             {
                 try
                 {
-                    string hash = await _mtgarenaClient.GetStringAsync(new Uri(_endpoint, UriKind.Relative));
+                    string hash = (await _mtgarenaClient.GetStringAsync(new Uri(_endpoint, UriKind.Relative))).Split(new[] { '\n', '\r' })[0];
                     byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync(new Uri($"Manifest_{hash}.mtga", UriKind.Relative));
                     string uncompressedManifest = Unzip(compressedManifest);
                     Manifest manifest = JsonSerializer.Deserialize<Manifest>(uncompressedManifest);
@@ -55,7 +56,7 @@ namespace Crabtopus.Data
                         string cardsFileName = cardsAsset.Name;
                         byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(new Uri(cardsFileName, UriKind.Relative));
                         string uncompressedCards = Unzip(compressedCards);
-                        List<Card> cards = JsonSerializer.Deserialize<List<Card>>(uncompressedCards);
+                        List<CardInfo> deserializedCards = JsonSerializer.Deserialize<List<CardInfo>>(uncompressedCards);
 
                         string localizationsFileName = localizationsAsset.Name;
                         byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(new Uri(localizationsFileName, UriKind.Relative));
@@ -64,10 +65,26 @@ namespace Crabtopus.Data
                             .Deserialize<List<Localization>>(uncompressedLocalizations)
                             .First(x => x.IsoCode == "en-US");
 
-                        foreach (Card card in cards)
+                        foreach (CardInfo card in deserializedCards)
                         {
                             card.Title = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
                         }
+
+                        var cards = deserializedCards.Select(x => new Card
+                        {
+                            CollectorNumber = x.CollectorNumber,
+                            Id = x.Id,
+                            Set = x.Set,
+                            Title = x.Title,
+                            Rarity = x.RarityValue switch
+                            {
+                                2 => Rarity.Common,
+                                3 => Rarity.Uncommon,
+                                4 => Rarity.Rare,
+                                5 => Rarity.MythicRare,
+                                _ => Rarity.BasicLand,
+                            }
+                        }).ToList();
 
                         _database.Set<GameInfo>().Upsert(gameVersion);
                         _database.Set<Card>().DeleteAll();
