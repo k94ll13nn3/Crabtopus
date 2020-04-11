@@ -88,7 +88,7 @@ namespace Crabtopus.Data
                         }).ToList();
 
                         _database.GameInfos.Add(gameVersion);
-                        //_database.Database.ExecuteSqlRaw("TRUNCATE TABLE Cards");
+                        _database.Database.ExecuteSqlRaw("DELETE FROM Cards");
                         _database.Cards.AddRange(cards);
                         _database.SaveChanges();
                     }

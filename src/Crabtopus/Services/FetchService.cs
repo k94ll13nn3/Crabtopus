@@ -116,32 +116,30 @@ namespace Crabtopus.Services
             IHtmlCollection<IElement> mainDeckCells = document.QuerySelectorAll(mainDeckSelector);
             IHtmlCollection<IElement> sideboardCells = document.QuerySelectorAll(sideboardSelector);
 
+            var cards = new List<DeckCard>();
             if (mainDeckCells.Any())
             {
-                var cards = new List<DeckCard>();
-                IEnumerable<DeckCard> maindeck = mainDeckCells.Select(m => new DeckCard
-                {
-                    Count = (int)char.GetNumericValue(m.TextContent[0]),
-                    IsSideboard = false,
-                    DeckId = deckId,
-                    CardId = _database.Cards.First(x => x.Title == m.TextContent.Substring(2).Replace("/", "//").Trim()).Id,
-                });
-                IEnumerable<DeckCard> sideboard = sideboardCells.Select(m => new DeckCard
-                {
-                    Count = (int)char.GetNumericValue(m.TextContent[0]),
-                    IsSideboard = true,
-                    DeckId = deckId,
-                    CardId = _database.Cards.First(x => x.Title == m.TextContent.Substring(2).Replace("/", "//").Trim()).Id,
-                });
+                IEnumerable<DeckCard> maindeck = mainDeckCells.Select(m => GetDeckCard(m.TextContent, true));
+                IEnumerable<DeckCard> sideboard = sideboardCells.Select(m => GetDeckCard(m.TextContent, false));
 
                 cards.AddRange(maindeck);
                 cards.AddRange(sideboard);
-
-                return cards;
             }
-            else
+
+            return cards;
+
+            DeckCard GetDeckCard(string textContent, bool isSideboard)
             {
-                return new List<DeckCard>();
+                string[] parts = textContent.Split(' ', 2);
+                string name = parts[1].Replace("/", "//", StringComparison.OrdinalIgnoreCase).Trim();
+                int count = int.Parse(parts[0], CultureInfo.InvariantCulture);
+                return new DeckCard
+                {
+                    Count = count,
+                    IsSideboard = isSideboard,
+                    DeckId = deckId,
+                    CardId = _database.Cards.First(x => x.Title == name).Id,
+                };
             }
         }
     }

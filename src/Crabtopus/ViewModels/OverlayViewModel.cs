@@ -11,14 +11,13 @@ namespace Crabtopus.ViewModels
         private string _title = "CRABTOPUS";
         private string _text = string.Empty;
         private bool _displayPopup;
-        private IEnumerable<Tournament> _tournaments;
+        private IEnumerable<Tournament> _tournaments = new List<Tournament>();
 
         public OverlayViewModel(IFetchService fetchService)
         {
             ShowPopupCommand = new DelegateCommand(() => DisplayPopup = true);
             ClosePopupCommand = new DelegateCommand(() => DisplayPopup = false);
 
-            Tournaments = new List<Tournament>();
             Task.Run(async () => Tournaments = await fetchService.GetEventsAsync());
         }
 

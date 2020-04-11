@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Crabtopus.Models
 {
@@ -9,23 +6,16 @@ namespace Crabtopus.Models
     {
         public int Id { get; set; }
 
-        public Tournament Tournament { get; set; }
+        public Tournament? Tournament { get; set; }
 
         public int TournamentId { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public string User { get; set; }
+        public string User { get; set; } = string.Empty;
 
-        public string Placement { get; set; }
+        public string Placement { get; set; } = string.Empty;
 
-        public ICollection<DeckCard> Cards { get; set; }
-
-        [NotMapped]
-        public string Tooltip =>
-            string.Join(Environment.NewLine, Cards.Where(x => !x.IsSideboard).Select(x => $"{x.Count} {x.Card.Title}"))
-            + Environment.NewLine
-            + Environment.NewLine
-            + string.Join(Environment.NewLine, Cards.Where(x => x.IsSideboard).Select(x => $"{x.Count} {x.Card.Title}"));
+        public ICollection<DeckCard> Cards { get; set; } = new List<DeckCard>();
     }
 }
