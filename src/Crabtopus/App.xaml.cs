@@ -76,6 +76,8 @@ namespace Crabtopus
             serviceCollection.AddSingleton<Database>();
             _serviceProvider = serviceCollection.BuildServiceProvider();
 
+            _serviceProvider.GetService<Database>().Database.EnsureCreated();
+
             // Read cards
             IOptions<ApplicationSettings> settings = _serviceProvider.GetService<IOptions<ApplicationSettings>>();
 

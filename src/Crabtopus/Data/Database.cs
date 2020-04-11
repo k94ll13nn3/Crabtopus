@@ -1,41 +1,21 @@
-﻿using System;
-using LiteDB;
+﻿using Crabtopus.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Crabtopus.Data
 {
-    internal class Database : IDisposable
+    // https://inloop.github.io/sqlite-viewer/
+    internal class Database : DbContext
     {
-        private readonly LiteDatabase _db;
+        public DbSet<GameInfo> GameInfos { get; set; }
 
-        private bool _disposedValue;
+        public DbSet<Card> Cards { get; set; }
 
-        public Database()
-        {
-            _db = new LiteDatabase("filename=crabtopus.db;log=255");
-        }
+        public DbSet<Tournament> Tournaments { get; set; }
 
-        public ILiteCollection<T> Set<T>() where T : IEntity
-        {
-            return _db.GetCollection<T>(typeof(T).Name);
-        }
+        public DbSet<Deck> Decks { get; set; }
 
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+        public DbSet<DeckCard> DeckCards { get; set; }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    _db?.Dispose();
-                }
-
-                _disposedValue = true;
-            }
-        }
+        protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite("Data Source=crabtopus.db");
     }
 }

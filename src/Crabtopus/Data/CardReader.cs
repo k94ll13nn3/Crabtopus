@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Crabtopus.Models;
 using Crabtopus.Models.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Crabtopus.Data
@@ -30,7 +31,7 @@ namespace Crabtopus.Data
 
         public async Task LoadCardsAsync()
         {
-            GameInfo gameVersion = _database.Set<GameInfo>().FindOne(_ => true) ?? new GameInfo();
+            GameInfo gameVersion = _database.GameInfos.FirstOrDefault() ?? new GameInfo();
 
             // Cards are loaded only if the version in base if different from the current game version.
             if (gameVersion.Version != _version)
@@ -86,9 +87,10 @@ namespace Crabtopus.Data
                             }
                         }).ToList();
 
-                        _database.Set<GameInfo>().Upsert(gameVersion);
-                        _database.Set<Card>().DeleteAll();
-                        _database.Set<Card>().InsertBulk(cards);
+                        _database.GameInfos.Add(gameVersion);
+                        //_database.Database.ExecuteSqlRaw("TRUNCATE TABLE Cards");
+                        _database.Cards.AddRange(cards);
+                        _database.SaveChanges();
                     }
                 }
                 catch (HttpRequestException e)

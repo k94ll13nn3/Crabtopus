@@ -1,4 +1,5 @@
-﻿using Crabtopus.Data;
+﻿using System.Linq;
+using Crabtopus.Data;
 using Crabtopus.Models;
 
 namespace Crabtopus.Services
@@ -14,12 +15,12 @@ namespace Crabtopus.Services
 
         public Card Get(string setCode, string collectorNumber)
         {
-            return _database.Set<Card>().FindOne(x => x.Set == setCode && x.CollectorNumber == collectorNumber);
+            return _database.Cards.FirstOrDefault(x => x.Set == setCode && x.CollectorNumber == collectorNumber);
         }
 
         public Card GetById(int id)
         {
-            return _database.Set<Card>().FindById(id);
+            return _database.Cards.Find(id);
         }
     }
 }

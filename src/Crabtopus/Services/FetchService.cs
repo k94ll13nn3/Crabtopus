@@ -8,6 +8,7 @@ using AngleSharp;
 using AngleSharp.Dom;
 using Crabtopus.Data;
 using Crabtopus.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Crabtopus.Services
 {
@@ -46,24 +47,35 @@ namespace Crabtopus.Services
                 DateTime date = DateTime.ParseExact(cell.QuerySelector("td:nth-child(3)").TextContent, "dd/MM/yy", CultureInfo.CurrentCulture);
                 if (!events.Select(x => x.Id).Contains(id))
                 {
-                    var tan = _database.Set<Tournament>().FindAll().ToList();
-                    Tournament? tournament = _database.Set<Tournament>().FindOne(x => x.Id == id);
+                    Tournament? tournament = _database
+                        .Tournaments
+                        .Include(t => t.Decks)
+                        .ThenInclude(d => d.Cards)
+                        .ThenInclude(dc => dc.Card)
+                        .FirstOrDefault(x => x.Id == id);
                     if (tournament is null)
                     {
-                        IEnumerable<Deck> decks = await GetDecksAsync(id);
-                        tournament = new Tournament(id, name, date, rating, decks);
-                        _database.Set<Tournament>().Insert(tournament);
+                        ICollection<Deck> decks = await GetDecksAsync(id);
+                        tournament = new Tournament
+                        {
+                            Id = id,
+                            Name = name,
+                            Decks = decks,
+                            Date = date,
+                            Rating = rating
+                        };
+                        _database.Tournaments.Add(tournament);
+                        _database.SaveChanges();
                     }
 
                     events.Add(tournament);
-                    break; //TODO
                 }
             }
 
             return events.OrderByDescending(x => x.Date);
         }
 
-        private async Task<IEnumerable<Deck>> GetDecksAsync(int eventId)
+        private async Task<ICollection<Deck>> GetDecksAsync(int eventId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&f=ST";
             IDocument document = await _context.OpenAsync(address);
@@ -79,16 +91,23 @@ namespace Crabtopus.Services
                     int id = int.Parse(HttpUtility.ParseQueryString(new Uri($"https://{BaseUrl}/{link.GetAttribute("href")}").Query)["d"], CultureInfo.InvariantCulture);
                     string name = link.TextContent;
                     string user = cell.QuerySelector("div:nth-child(3)").TextContent;
-                    (IEnumerable<DeckCard> maindeck, IEnumerable<DeckCard> sideboard) = await GetDeckAsync(eventId, id);
-                    decks.Add(new Deck(id, name, user, placement, maindeck, sideboard));
-                    break; //TODO
+                    ICollection<DeckCard> cards = await GetDeckAsync(eventId, id);
+                    decks.Add(new Deck
+                    {
+                        Cards = cards,
+                        Id = id,
+                        TournamentId = eventId,
+                        Name = name,
+                        Placement = placement,
+                        User = user,
+                    });
                 }
             }
 
             return decks;
         }
 
-        private async Task<(IEnumerable<DeckCard> maindeck, IEnumerable<DeckCard> sideboard)> GetDeckAsync(int eventId, int deckId)
+        private async Task<ICollection<DeckCard>> GetDeckAsync(int eventId, int deckId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&d={deckId}&f=ST";
             IDocument document = await _context.OpenAsync(address);
@@ -99,14 +118,30 @@ namespace Crabtopus.Services
 
             if (mainDeckCells.Any())
             {
-                IEnumerable<DeckCard> maindeck = mainDeckCells.Select(m => new DeckCard((int)char.GetNumericValue(m.TextContent[0]), m.TextContent[1..].Trim()));
-                IEnumerable<DeckCard> sideboard = sideboardCells.Select(m => new DeckCard((int)char.GetNumericValue(m.TextContent[0]), m.TextContent[1..].Trim()));
+                var cards = new List<DeckCard>();
+                IEnumerable<DeckCard> maindeck = mainDeckCells.Select(m => new DeckCard
+                {
+                    Count = (int)char.GetNumericValue(m.TextContent[0]),
+                    IsSideboard = false,
+                    DeckId = deckId,
+                    CardId = _database.Cards.First(x => x.Title == m.TextContent.Substring(2).Replace("/", "//").Trim()).Id,
+                });
+                IEnumerable<DeckCard> sideboard = sideboardCells.Select(m => new DeckCard
+                {
+                    Count = (int)char.GetNumericValue(m.TextContent[0]),
+                    IsSideboard = true,
+                    DeckId = deckId,
+                    CardId = _database.Cards.First(x => x.Title == m.TextContent.Substring(2).Replace("/", "//").Trim()).Id,
+                });
 
-                return (maindeck, sideboard);
+                cards.AddRange(maindeck);
+                cards.AddRange(sideboard);
+
+                return cards;
             }
             else
             {
-                return (new List<DeckCard>(), new List<DeckCard>());
+                return new List<DeckCard>();
             }
         }
     }

@@ -2,14 +2,18 @@
 {
     internal class DeckCard
     {
-        public DeckCard(int count, string name)
-        {
-            Count = count;
-            Name = name;
-        }
+        public int Id { get; set; }
 
-        public int Count { get; }
+        public int DeckId { get; set; }
 
-        public string Name { get; }
+        public Deck Deck { get; set; }
+
+        public int Count { get; set; }
+
+        public int CardId { get; set; }
+
+        public Card Card { get; set; }
+
+        public bool IsSideboard { get; set; }
     }
 }

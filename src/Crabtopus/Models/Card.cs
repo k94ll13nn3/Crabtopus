@@ -1,8 +1,6 @@
-﻿using Crabtopus.Data;
-
-namespace Crabtopus.Models
+﻿namespace Crabtopus.Models
 {
-    internal class Card : IEntity
+    internal class Card
     {
         public int Id { get; set; }
 
