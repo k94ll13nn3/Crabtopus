@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Crabtopus.Data;
 
 namespace Crabtopus.Models
 {
-    internal class Tournament
+    internal class Tournament : IEntity
     {
         public Tournament(int id, string name, DateTime date, int rating, IEnumerable<Deck> decks)
         {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using AngleSharp;
 using AngleSharp.Dom;
+using Crabtopus.Data;
 using Crabtopus.Models;
 
 namespace Crabtopus.Services
@@ -13,12 +14,13 @@ namespace Crabtopus.Services
     internal class FetchService : IFetchService
     {
         private const string BaseUrl = "www.mtgtop8.com";
-
         private readonly IBrowsingContext _context;
+        private readonly Database _database;
 
-        public FetchService()
+        public FetchService(Database database)
         {
             _context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+            _database = database;
         }
 
         public async Task<IEnumerable<Tournament>> GetEventsAsync()
@@ -44,8 +46,16 @@ namespace Crabtopus.Services
                 DateTime date = DateTime.ParseExact(cell.QuerySelector("td:nth-child(3)").TextContent, "dd/MM/yy", CultureInfo.CurrentCulture);
                 if (!events.Select(x => x.Id).Contains(id))
                 {
-                    IEnumerable<Deck> decks = await GetDecksAsync(id);
-                    events.Add(new Tournament(id, name, date, rating, decks));
+                    var tan = _database.Set<Tournament>().FindAll().ToList();
+                    Tournament? tournament = _database.Set<Tournament>().FindOne(x => x.Id == id);
+                    if (tournament is null)
+                    {
+                        IEnumerable<Deck> decks = await GetDecksAsync(id);
+                        tournament = new Tournament(id, name, date, rating, decks);
+                        _database.Set<Tournament>().Insert(tournament);
+                    }
+
+                    events.Add(tournament);
                     break; //TODO
                 }
             }

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Crabtopus.Data;
+using LiteDB;
 
 namespace Crabtopus.Models
 {
-    internal class Deck
+    internal class Deck : IEntity
     {
         public Deck(int id, string name, string user, string placement, IEnumerable<DeckCard> maindeck, IEnumerable<DeckCard> sideboard)
         {
@@ -24,6 +26,7 @@ namespace Crabtopus.Models
 
         public string Placement { get; }
 
+        [BsonIgnore]
         public string Tooltip =>
             string.Join(Environment.NewLine, Maindeck.Select(x => $"{x.Count} {x.Name}"))
             + Environment.NewLine
