@@ -114,7 +114,7 @@
                 </Viewbox>
             </Button>
 
-            <TextBlock Text="Decks" FontSize="14" Foreground="White" VerticalAlignment="Center" Margin="5" FontFamily="pack://application:,,,/Resources/#Righteous"></TextBlock>
+            <TextBlock Text="{Binding Text}" FontSize="14" Foreground="White" VerticalAlignment="Center" Margin="5" FontFamily="pack://application:,,,/Resources/#Righteous"></TextBlock>
             <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto" Panel.ZIndex="1">
                 <ItemsControl ItemsSource="{Binding Tournaments}" HorizontalContentAlignment="Stretch">
                     <ItemsControl.ItemTemplate>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -15,9 +16,8 @@ namespace Crabtopus.ViewModels
         private readonly IFetchService _fetchService;
         private readonly Database _database;
         private string _title = "CRABTOPUS";
-        private string _text = string.Empty;
+        private string _text = "Decks";
         private bool _displayPopup;
-        private IEnumerable<Tournament> _tournaments = new List<Tournament>();
 
         public OverlayViewModel(IFetchService fetchService, Database database)
         {
@@ -29,11 +29,7 @@ namespace Crabtopus.ViewModels
             LoadCommand = new DelegateCommand(async () => await LoadAsync());
         }
 
-        public IEnumerable<Tournament> Tournaments
-        {
-            get => _tournaments;
-            set => SetProperty(ref _tournaments, value);
-        }
+        public ObservableCollection<Tournament> Tournaments { get; } = new ObservableCollection<Tournament>();
 
         public ICommand ShowPopupCommand { get; set; }
 
@@ -61,7 +57,7 @@ namespace Crabtopus.ViewModels
 
         private async Task LoadAsync()
         {
-            IEnumerable<(int id, string name, int rating, DateTime date)>? tournamentInfos = await _fetchService.GetTournamentsAsync();
+            ICollection<(int id, string name, int rating, DateTime date)>? tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
             foreach ((int id, string name, int rating, DateTime date) in tournamentInfos)
             {
                 Tournament? tournament = await _database
@@ -85,9 +81,9 @@ namespace Crabtopus.ViewModels
                     _database.SaveChanges();
                 }
 
+                Tournaments.Add(tournament);
+                Text = $"Decks {Tournaments.Count}/{tournamentInfos.Count}";
             }
-
-            Tournaments = await _database.Tournaments.OrderByDescending(x => x.Date).ToListAsync();
         }
     }
 }
