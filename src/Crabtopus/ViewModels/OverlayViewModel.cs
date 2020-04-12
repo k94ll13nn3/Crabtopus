@@ -19,6 +19,33 @@ namespace Crabtopus.ViewModels
         private string _text = "Decks";
         private bool _displayPopup;
 
+        public OverlayViewModel()
+        {
+            Tournaments = new ObservableCollection<Tournament>
+            {
+                new Tournament
+                {
+                    Name = "Weekly Championship Day One 8-0 Decks @ MagicFest Online",
+                    Rating = 1,
+                    Decks = new   List<Deck>
+                    {
+                        new Deck { Name = "UW Control" },
+                    },
+                },
+                new Tournament
+                {
+                    Name = "MagicFest Online Weekly Championship",
+                    Rating = 4,
+                    Decks = new   List<Deck>
+                    {
+                        new Deck { Name = "Bant Control" },
+                        new Deck { Name = "Simic Flash" },
+                        new Deck { Name = "Fires of Invention" },
+                    },
+                },
+            };
+        }
+
         public OverlayViewModel(IFetchService fetchService, Database database)
         {
             _fetchService = fetchService;

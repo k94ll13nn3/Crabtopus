@@ -4,9 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Crabtopus.ViewModels"
-             d:DataContext="{d:DesignInstance Type=vm:OverlayViewModel, IsDesignTimeCreatable=False}"
+             xmlns:converters="clr-namespace:Crabtopus.Converters"
+             d:DataContext="{d:DesignInstance Type=vm:OverlayViewModel, IsDesignTimeCreatable=True}"
              mc:Ignorable="d">
     <UserControl.Resources>
+        <converters:RatingToPathConverter x:Key="RatingToPathConverter" />
+
         <SolidColorBrush x:Key="Button.Static.Background" Color="Transparent" />
         <SolidColorBrush x:Key="Button.Static.Foreground" Color="White" />
         <SolidColorBrush x:Key="Button.Pressed.Background" Color="Transparent" />
@@ -35,15 +38,15 @@
                         <Border Padding="{TemplateBinding Padding}">
                             <Grid Background="Transparent" SnapsToDevicePixels="False" Height="24">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="19"/>
+                                    <ColumnDefinition Width="24"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Viewbox Width="19" Height="19">
+                                <Viewbox Width="24" Height="24">
                                     <Canvas Width="24" Height="24">
                                         <Path x:Name="arrow"  Data="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" HorizontalAlignment="Center" SnapsToDevicePixels="false" StrokeThickness="2" Stroke="{StaticResource Expander.Static.Arrow.Stroke}" VerticalAlignment="Center"/>
                                     </Canvas>
                                 </Viewbox>
-                                <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" Margin="5,0,0,0" RecognizesAccessKey="True" SnapsToDevicePixels="True" VerticalAlignment="Center"/>
+                                <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" RecognizesAccessKey="True" SnapsToDevicePixels="True" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -88,7 +91,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Width="300" Height="500" BorderBrush="#3949AB" BorderThickness="2" Margin="5" Background="#282c34">
+    <Border Width="350" Height="500" BorderBrush="#3949AB" BorderThickness="2" Margin="5" Background="#282c34">
         <Border.Effect>
             <DropShadowEffect ShadowDepth="3"/>
         </Border.Effect>
@@ -114,15 +117,22 @@
                 </Viewbox>
             </Button>
 
-            <TextBlock Text="{Binding Text}" FontSize="14" Foreground="White" VerticalAlignment="Center" Margin="5" FontFamily="pack://application:,,,/Resources/#Righteous"></TextBlock>
-            <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Auto" Panel.ZIndex="1">
+            <TextBlock Text="{Binding Text}" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="5" FontFamily="pack://application:,,,/Resources/#Righteous"></TextBlock>
+            <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Hidden" Panel.ZIndex="1">
                 <ItemsControl ItemsSource="{Binding Tournaments}" HorizontalContentAlignment="Stretch">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Expander Style="{DynamicResource ExpanderStyle1}" Header="{Binding Name}"  Foreground="White" ExpandDirection="Down" FontSize="14" FontFamily="pack://application:,,,/Resources/#Righteous">
+                            <Expander Style="{DynamicResource ExpanderStyle1}" Header="{Binding}"  Foreground="White" ExpandDirection="Down" FontSize="14" FontFamily="pack://application:,,,/Resources/#Righteous">
                                 <Expander.HeaderTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding }" Foreground="White" TextTrimming="CharacterEllipsis" ToolTip="{Binding}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Viewbox Width="24" Height="24">
+                                                <Canvas Width="24" Height="24">
+                                                    <Path Fill="White" Data="{Binding Rating, Converter={StaticResource RatingToPathConverter}}" />
+                                                </Canvas>
+                                            </Viewbox>
+                                            <TextBlock VerticalAlignment="Center" FontSize="16" Text="{Binding Name}" Margin="5,0,0,0" Foreground="White" TextTrimming="CharacterEllipsis" ToolTip="{Binding}" Width="290"/>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </Expander.HeaderTemplate>
                                 <ItemsControl Margin="5,0,0,0" ItemsSource="{Binding Decks}" HorizontalContentAlignment="Stretch">
