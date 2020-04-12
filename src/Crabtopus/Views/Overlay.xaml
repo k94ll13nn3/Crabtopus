@@ -1,0 +1,32 @@
+﻿<Window x:Class="Crabtopus.Views.Overlay"
+        x:ClassModifier="internal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Crabtopus.ViewModels"
+        xmlns:views="clr-namespace:Crabtopus.Views"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Topmost="True"
+        Title="Overlay" Height="35" Width="130"
+        d:DataContext="{d:DesignInstance Type=vm:OverlayViewModel, IsDesignTimeCreatable=False}">
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="Loaded">
+            <behaviors:InvokeCommandAction Command="{Binding LoadCommand}" />
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
+    
+    <Grid>
+        <Button x:Name="PrimaryButton" Style="{StaticResource ButtonStyle}" Content="{Binding Title}" Command="{Binding ShowPopupCommand}"></Button>
+
+        <Popup x:Name="ContentPopup" 
+               PlacementTarget="{Binding ElementName=PrimaryButton}" Placement="Bottom" AllowsTransparency="True" 
+               StaysOpen="True"
+               IsOpen="{Binding DisplayPopup, Mode=TwoWay}">
+            <views:DecksLoader></views:DecksLoader>
+        </Popup>
+    </Grid>
+</Window>

@@ -1,0 +1,175 @@
+﻿<UserControl x:Class="Crabtopus.Views.DecksLoader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:Crabtopus.ViewModels"
+             xmlns:converters="clr-namespace:Crabtopus.Converters"
+             d:DataContext="{d:DesignInstance Type=vm:OverlayViewModel, IsDesignTimeCreatable=True}"
+             mc:Ignorable="d"
+             x:Name="Root">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="Button.Static.Background" Color="Transparent" />
+        <SolidColorBrush x:Key="Button.Static.Foreground" Color="White" />
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="Transparent" />
+        <SolidColorBrush x:Key="Button.Pressed.Foreground" Color="LightGray" />
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="Transparent" />
+        <SolidColorBrush x:Key="Button.MouseOver.Foreground" Color="LightGray" />
+        <SolidColorBrush x:Key="Expander.Static.Arrow.Stroke" Color="White"/>
+        <SolidColorBrush x:Key="Expander.MouseOver.Arrow.Stroke" Color="White"/>
+        <SolidColorBrush x:Key="Expander.Pressed.Arrow.Stroke" Color="White"/>
+        <SolidColorBrush x:Key="Expander.Disabled.Arrow.Stroke" Color="White"/>
+        <Style x:Key="ExpanderHeaderFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Border>
+                            <Rectangle Margin="0" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="1" Stroke="Black"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ExpanderDownHeaderStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border Padding="{TemplateBinding Padding}">
+                            <Grid Background="Transparent" SnapsToDevicePixels="False" Height="24">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Viewbox Width="24" Height="24">
+                                    <Canvas Width="24" Height="24">
+                                        <Path x:Name="arrow"  Data="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" HorizontalAlignment="Center" SnapsToDevicePixels="false" StrokeThickness="2" Stroke="{StaticResource Expander.Static.Arrow.Stroke}" VerticalAlignment="Center"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" RecognizesAccessKey="True" SnapsToDevicePixels="True" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter Property="Data" TargetName="arrow" Value="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Stroke" TargetName="arrow" Value="{StaticResource Expander.MouseOver.Arrow.Stroke}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Stroke" TargetName="arrow" Value="{StaticResource Expander.Pressed.Arrow.Stroke}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Stroke" TargetName="arrow" Value="{StaticResource Expander.Disabled.Arrow.Stroke}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ExpanderStyle1" TargetType="{x:Type Expander}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Expander}">
+                        <Border Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="3" SnapsToDevicePixels="true">
+                            <DockPanel>
+                                <ToggleButton x:Name="HeaderSite" ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}" DockPanel.Dock="Top" FontStyle="{TemplateBinding FontStyle}" FontStretch="{TemplateBinding FontStretch}" FontWeight="{TemplateBinding FontWeight}" FocusVisualStyle="{StaticResource ExpanderHeaderFocusVisual}" FontFamily="{TemplateBinding FontFamily}" Foreground="{TemplateBinding Foreground}" FontSize="{TemplateBinding FontSize}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" MinHeight="0" MinWidth="0" Margin="1" Padding="{TemplateBinding Padding}" Style="{StaticResource ExpanderDownHeaderStyle}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                <ContentPresenter x:Name="ExpandSite" DockPanel.Dock="Bottom" Focusable="false" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Visibility="Collapsed"/>
+                            </DockPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="true">
+                                <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Width="350" Height="500" BorderBrush="#3949AB" BorderThickness="2" Margin="5" Background="#282c34">
+        <Border.Effect>
+            <DropShadowEffect ShadowDepth="3"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Command="{Binding ClosePopupCommand}" Grid.Column="1" Width="24" Height="24"
+                VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Panel.ZIndex="10"
+                Style="{StaticResource ButtonStyle}">
+                <Viewbox Width="20" Height="20">
+                    <Canvas Width="24" Height="24">
+                        <Path Data="M19,3H16.3H7.7H5A2,2 0 0,0 3,5V7.7V16.4V19A2,2 0 0,0 5,21H7.7H16.4H19A2,2 0 0,0 21,19V16.3V7.7V5A2,2 0 0,0 19,3M15.6,17L12,13.4L8.4,17L7,15.6L10.6,12L7,8.4L8.4,7L12,10.6L15.6,7L17,8.4L13.4,12L17,15.6L15.6,17Z" 
+                        Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Canvas>
+                </Viewbox>
+            </Button>
+
+            <TextBlock Text="{Binding Text}" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="5" FontFamily="pack://application:,,,/Resources/#Righteous"></TextBlock>
+            
+            <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Hidden" Panel.ZIndex="1">
+                <ItemsControl ItemsSource="{Binding Tournaments}" HorizontalContentAlignment="Stretch">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Expander Style="{DynamicResource ExpanderStyle1}" Header="{Binding}"  Foreground="White" ExpandDirection="Down" FontSize="14" FontFamily="pack://application:,,,/Resources/#Righteous">
+                                <Expander.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Viewbox Width="24" Height="24">
+                                                <Canvas Width="24" Height="24">
+                                                    <Path Fill="White" Data="{Binding Rating, Converter={x:Static converters:RatingToPathConverter.Default}}" />
+                                                </Canvas>
+                                            </Viewbox>
+                                            <TextBlock VerticalAlignment="Center" FontSize="16" Text="{Binding Name}" Margin="5,0,0,0" Foreground="White" TextTrimming="CharacterEllipsis" ToolTip="{Binding}" Width="290"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Expander.HeaderTemplate>
+                                <ItemsControl Margin="5,0,0,0" ItemsSource="{Binding Decks}" HorizontalContentAlignment="Stretch">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Placement}" VerticalAlignment="Center" Foreground="White" Width="45" FontSize="14" TextAlignment="Right"/>
+                                                <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="{Binding Name}" Foreground="White" FontSize="14" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" Width="240"/>
+                                                <Button VerticalContentAlignment="Center" HorizontalContentAlignment="Center"  Style="{StaticResource ButtonStyle}" Command="{Binding DataContext.ExportDeckCommand, ElementName=Root}" CommandParameter="{Binding}">
+                                                    <Viewbox Width="20" Height="20">
+                                                        <Canvas Width="24" Height="24">
+                                                            <Path Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" Fill="White" />
+                                                        </Canvas>
+                                                    </Viewbox>
+                                                </Button>
+                                                <Button VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Style="{StaticResource ButtonStyle}">
+                                                    <Viewbox Width="20" Height="20">
+                                                        <Canvas Width="24" Height="24">
+                                                            <Path Data="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z" Fill="White" />
+                                                        </Canvas>
+                                                    </Viewbox>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Expander>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <TextBlock Text="{Binding Tooltip}" Grid.Row="2" FontSize="14" Height="30" 
+                       FontFamily="pack://application:,,,/Resources/#Righteous"
+                       Foreground="White" HorizontalAlignment="Center" TextAlignment="Center" 
+                       Visibility="{Binding Tooltip, Converter={x:Static converters:StringToVisibilityConverter.Default}}"/>
+        </Grid>
+    </Border>
+</UserControl>
