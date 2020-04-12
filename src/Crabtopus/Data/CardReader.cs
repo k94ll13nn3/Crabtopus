@@ -71,7 +71,7 @@ namespace Crabtopus.Data
                             card.Title = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
                         }
 
-                        var cards = deserializedCards.Select(x => new Card
+                        var cards = deserializedCards.Where(x => !x.IsToken).Select(x => new Card
                         {
                             CollectorNumber = x.CollectorNumber,
                             Id = x.Id,
@@ -84,7 +84,10 @@ namespace Crabtopus.Data
                                 4 => Rarity.Rare,
                                 5 => Rarity.MythicRare,
                                 _ => Rarity.BasicLand,
-                            }
+                            },
+                            Colors = string.Join(';', x.Colors),
+                            Cost = x.Cost,
+                            ConvertedManaCost = x.ConvertedManaCost,
                         }).ToList();
 
                         _database.GameInfos.Add(gameVersion);

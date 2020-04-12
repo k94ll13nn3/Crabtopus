@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Crabtopus.Models.Json
 {
@@ -9,6 +10,9 @@ namespace Crabtopus.Models.Json
 
         [JsonPropertyName("titleId")]
         public long TitleId { get; set; }
+
+        [JsonPropertyName("isToken")]
+        public bool IsToken { get; set; }
 
         [JsonPropertyName("CollectorNumber")]
         public string CollectorNumber { get; set; } = string.Empty;
@@ -21,5 +25,14 @@ namespace Crabtopus.Models.Json
 
         [JsonPropertyName("rarity")]
         public int RarityValue { get; set; }
+
+        [JsonPropertyName("colors")]
+        public List<int> Colors { get; set; } = new List<int>();
+
+        [JsonPropertyName("castingcost")]
+        public string Cost { get; set; } = string.Empty;
+
+        [JsonPropertyName("cmc")]
+        public int ConvertedManaCost { get; set; }
     }
 }

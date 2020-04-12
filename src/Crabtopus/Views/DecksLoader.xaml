@@ -8,8 +8,6 @@
              d:DataContext="{d:DesignInstance Type=vm:OverlayViewModel, IsDesignTimeCreatable=True}"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <converters:RatingToPathConverter x:Key="RatingToPathConverter" />
-
         <SolidColorBrush x:Key="Button.Static.Background" Color="Transparent" />
         <SolidColorBrush x:Key="Button.Static.Foreground" Color="White" />
         <SolidColorBrush x:Key="Button.Pressed.Background" Color="Transparent" />
@@ -128,7 +126,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <Viewbox Width="24" Height="24">
                                                 <Canvas Width="24" Height="24">
-                                                    <Path Fill="White" Data="{Binding Rating, Converter={StaticResource RatingToPathConverter}}" />
+                                                    <Path Fill="White" Data="{Binding Rating, Converter={x:Static converters:RatingToPathConverter.Default}}" />
                                                 </Canvas>
                                             </Viewbox>
                                             <TextBlock VerticalAlignment="Center" FontSize="16" Text="{Binding Name}" Margin="5,0,0,0" Foreground="White" TextTrimming="CharacterEllipsis" ToolTip="{Binding}" Width="290"/>

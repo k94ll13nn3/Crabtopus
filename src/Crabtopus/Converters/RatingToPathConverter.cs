@@ -5,8 +5,11 @@ using System.Windows.Data;
 
 namespace Crabtopus.Converters
 {
-    internal class RatingToPathConverter : IValueConverter
+    [ValueConversion(typeof(int), typeof(string))]
+    public class RatingToPathConverter : IValueConverter
     {
+        public static readonly RatingToPathConverter Default = new RatingToPathConverter();
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return (int)value switch
