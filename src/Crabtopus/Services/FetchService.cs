@@ -8,7 +8,6 @@ using AngleSharp;
 using AngleSharp.Dom;
 using Crabtopus.Data;
 using Crabtopus.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Crabtopus.Services
 {
@@ -24,7 +23,7 @@ namespace Crabtopus.Services
             _database = database;
         }
 
-        public async Task<IEnumerable<Tournament>> GetEventsAsync()
+        public async Task<IEnumerable<(int id, string name, int rating, DateTime date)>> GetTournamentsAsync()
         {
             string address = $"https://{BaseUrl}/format?f=ST";
             IDocument document = await _context.OpenAsync(address);
@@ -32,7 +31,7 @@ namespace Crabtopus.Services
                 ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(3) > tbody:nth-child(1) > tr:not(:first-child)," +
                 ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:not(:first-child)";
             IHtmlCollection<IElement> eventsCells = document.QuerySelectorAll(eventsSelector);
-            var events = new List<Tournament>();
+            var events = new List<(int id, string name, int rating, DateTime date)>();
             foreach (IElement cell in eventsCells)
             {
                 IElement link = cell.QuerySelector("td:nth-child(1) > a");
@@ -45,37 +44,16 @@ namespace Crabtopus.Services
                 }
 
                 DateTime date = DateTime.ParseExact(cell.QuerySelector("td:nth-child(3)").TextContent, "dd/MM/yy", CultureInfo.CurrentCulture);
-                if (!events.Select(x => x.Id).Contains(id))
+                if (!events.Select(x => x.id).Contains(id))
                 {
-                    Tournament? tournament = _database
-                        .Tournaments
-                        .Include(t => t.Decks)
-                        .ThenInclude(d => d.Cards)
-                        .ThenInclude(dc => dc.Card)
-                        .FirstOrDefault(x => x.Id == id);
-                    if (tournament is null)
-                    {
-                        ICollection<Deck> decks = await GetDecksAsync(id);
-                        tournament = new Tournament
-                        {
-                            Id = id,
-                            Name = name,
-                            Decks = decks,
-                            Date = date,
-                            Rating = rating
-                        };
-                        _database.Tournaments.Add(tournament);
-                        _database.SaveChanges();
-                    }
-
-                    events.Add(tournament);
+                    events.Add((id, name, rating, date));
                 }
             }
 
-            return events.OrderByDescending(x => x.Date);
+            return events;
         }
 
-        private async Task<ICollection<Deck>> GetDecksAsync(int eventId)
+        public async Task<ICollection<Deck>> GetDecksAsync(int eventId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&f=ST";
             IDocument document = await _context.OpenAsync(address);

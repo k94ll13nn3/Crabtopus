@@ -41,6 +41,9 @@ namespace Crabtopus.Infrastructure
                 IntPtr foregroundWindowHandle = GetForegroundWindow();
 
                 // Show the overlay if the process is the foreground window or if _window is the foreground window.
+
+                // TODO: needed in order to not have other overlays disapear
+            SetWindowLong(_wih.Handle, GWL_EXSTYLE, GetWindowLong(_wih.Handle, GWL_EXSTYLE) | WS_EX_NOACTIVATE);
                 if (foregroundWindowHandle == processWindowHandle || foregroundWindowHandle == _wih.Handle)
                 {
                     if (_windowPosition.HasFlag(OverlayPosition.Top))
