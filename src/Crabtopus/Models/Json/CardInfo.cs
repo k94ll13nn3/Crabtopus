@@ -34,5 +34,8 @@ namespace Crabtopus.Models.Json
 
         [JsonPropertyName("cmc")]
         public int ConvertedManaCost { get; set; }
+
+        [JsonPropertyName("types")]
+        public List<int> Types { get; set; } = new List<int>();
     }
 }

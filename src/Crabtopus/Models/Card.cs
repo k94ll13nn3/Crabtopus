@@ -19,11 +19,16 @@ namespace Crabtopus.Models
 
         public string Colors { get; set; } = string.Empty;
 
+        public string Types { get; set; } = string.Empty;
+
         public string Cost { get; set; } = string.Empty;
 
         public int ConvertedManaCost { get; set; }
 
         [NotMapped]
-        public IEnumerable<Color> CColors => Colors.Split(';').Select(Enum.Parse<Color>);
+        public IEnumerable<Color> ColorList => Colors.Split(';').Select(Enum.Parse<Color>);
+
+        [NotMapped]
+        public IEnumerable<Type> TypeList => Types.Split(';').Select(Enum.Parse<Type>);
     }
 }

@@ -86,6 +86,7 @@ namespace Crabtopus.Data
                                 _ => Rarity.BasicLand,
                             },
                             Colors = string.Join(';', x.Colors),
+                            Types = string.Join(';', x.Types),
                             Cost = x.Cost,
                             ConvertedManaCost = x.ConvertedManaCost,
                         }).ToList();
