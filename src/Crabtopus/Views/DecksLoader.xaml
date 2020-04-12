@@ -6,7 +6,8 @@
              xmlns:vm="clr-namespace:Crabtopus.ViewModels"
              xmlns:converters="clr-namespace:Crabtopus.Converters"
              d:DataContext="{d:DesignInstance Type=vm:OverlayViewModel, IsDesignTimeCreatable=True}"
-             mc:Ignorable="d">
+             mc:Ignorable="d"
+             x:Name="Root">
     <UserControl.Resources>
         <SolidColorBrush x:Key="Button.Static.Background" Color="Transparent" />
         <SolidColorBrush x:Key="Button.Static.Foreground" Color="White" />
@@ -97,6 +98,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -116,6 +118,7 @@
             </Button>
 
             <TextBlock Text="{Binding Text}" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="5" FontFamily="pack://application:,,,/Resources/#Righteous"></TextBlock>
+            
             <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Hidden" Panel.ZIndex="1">
                 <ItemsControl ItemsSource="{Binding Tournaments}" HorizontalContentAlignment="Stretch">
                     <ItemsControl.ItemTemplate>
@@ -139,7 +142,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Placement}" VerticalAlignment="Center" Foreground="White" Width="45" FontSize="14" TextAlignment="Right"/>
                                                 <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="{Binding Name}" Foreground="White" FontSize="14" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" Width="240"/>
-                                                <Button VerticalContentAlignment="Center" HorizontalContentAlignment="Center"  Style="{StaticResource ButtonStyle}">
+                                                <Button VerticalContentAlignment="Center" HorizontalContentAlignment="Center"  Style="{StaticResource ButtonStyle}" Command="{Binding DataContext.ExportDeckCommand, ElementName=Root}" CommandParameter="{Binding}">
                                                     <Viewbox Width="20" Height="20">
                                                         <Canvas Width="24" Height="24">
                                                             <Path Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" Fill="White" />
@@ -162,6 +165,11 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
+
+            <TextBlock Text="{Binding Tooltip}" Grid.Row="2" FontSize="14" Height="30" 
+                       FontFamily="pack://application:,,,/Resources/#Righteous"
+                       Foreground="White" HorizontalAlignment="Center" TextAlignment="Center" 
+                       Visibility="{Binding Tooltip, Converter={x:Static converters:StringToVisibilityConverter.Default}}"/>
         </Grid>
     </Border>
 </UserControl>

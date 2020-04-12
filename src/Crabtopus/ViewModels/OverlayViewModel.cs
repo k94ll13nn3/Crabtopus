@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using Crabtopus.Data;
 using Crabtopus.Models;
@@ -17,6 +18,7 @@ namespace Crabtopus.ViewModels
         private readonly Database _database;
         private string _title = "CRABTOPUS";
         private string _text = "Decks";
+        private string _tooltip = string.Empty;
         private bool _displayPopup;
 
         public OverlayViewModel()
@@ -54,6 +56,7 @@ namespace Crabtopus.ViewModels
             ShowPopupCommand = new DelegateCommand(() => DisplayPopup = true);
             ClosePopupCommand = new DelegateCommand(() => DisplayPopup = false);
             LoadCommand = new DelegateCommand(async () => await LoadAsync());
+            ExportDeckCommand = new DelegateCommand<Deck>(ExportDeck);
         }
 
         public ObservableCollection<Tournament> Tournaments { get; } = new ObservableCollection<Tournament>();
@@ -63,6 +66,8 @@ namespace Crabtopus.ViewModels
         public ICommand ClosePopupCommand { get; set; }
 
         public ICommand LoadCommand { get; set; }
+
+        public ICommand ExportDeckCommand { get; set; }
 
         public bool DisplayPopup
         {
@@ -80,6 +85,28 @@ namespace Crabtopus.ViewModels
         {
             get => _text;
             set => SetProperty(ref _text, value);
+        }
+
+        public string Tooltip
+        {
+            get => _tooltip;
+            set => SetProperty(ref _tooltip, value);
+        }
+
+        private void ExportDeck(Deck deck)
+        {
+            var exportedDeck = string.Join(Environment.NewLine, deck.Cards.Where(x => !x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Title}"))
+            + Environment.NewLine
+            + Environment.NewLine
+            + string.Join(Environment.NewLine, deck.Cards.Where(x => x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Title}"));
+
+            Clipboard.SetText(exportedDeck);
+            Tooltip = "Copied!";
+            Task.Run(async () =>
+            {
+                await Task.Delay(2000);
+                Tooltip = string.Empty;
+            });
         }
 
         private async Task LoadAsync()

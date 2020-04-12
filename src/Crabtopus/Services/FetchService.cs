@@ -97,8 +97,8 @@ namespace Crabtopus.Services
             var cards = new List<DeckCard>();
             if (mainDeckCells.Any())
             {
-                IEnumerable<DeckCard> maindeck = mainDeckCells.Select(m => GetDeckCard(m.TextContent, true));
-                IEnumerable<DeckCard> sideboard = sideboardCells.Select(m => GetDeckCard(m.TextContent, false));
+                IEnumerable<DeckCard> maindeck = mainDeckCells.Select(m => GetDeckCard(m.TextContent, false));
+                IEnumerable<DeckCard> sideboard = sideboardCells.Select(m => GetDeckCard(m.TextContent, true));
 
                 cards.AddRange(maindeck);
                 cards.AddRange(sideboard);
