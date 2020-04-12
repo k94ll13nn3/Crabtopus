@@ -29,7 +29,7 @@ namespace Crabtopus.ViewModels
                     Rating = 1,
                     Decks = new   List<Deck>
                     {
-                        new Deck { Name = "UW Control" },
+                        new Deck { Name = "UW Control", Placement = "30 pts" },
                     },
                 },
                 new Tournament
@@ -38,9 +38,9 @@ namespace Crabtopus.ViewModels
                     Rating = 4,
                     Decks = new   List<Deck>
                     {
-                        new Deck { Name = "Bant Control" },
-                        new Deck { Name = "Simic Flash" },
-                        new Deck { Name = "Fires of Invention" },
+                        new Deck { Name = "Bant Control", Placement = "1"  },
+                        new Deck { Name = "Simic Flash", Placement = "2"  },
+                        new Deck { Name = "Fires of Invention", Placement = "3-4"  },
                     },
                 },
             };
@@ -108,6 +108,7 @@ namespace Crabtopus.ViewModels
                     _database.SaveChanges();
                 }
 
+                tournament.Decks = tournament.Decks.OrderBy(x => x.Placement).ToList();
                 Tournaments.Add(tournament);
                 Text = $"Decks {Tournaments.Count}/{tournamentInfos.Count}";
             }
