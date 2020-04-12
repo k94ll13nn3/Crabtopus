@@ -21,33 +21,6 @@ namespace Crabtopus.ViewModels
         private string _tooltip = string.Empty;
         private bool _displayPopup;
 
-        public OverlayViewModel()
-        {
-            Tournaments = new ObservableCollection<Tournament>
-            {
-                new Tournament
-                {
-                    Name = "Weekly Championship Day One 8-0 Decks @ MagicFest Online",
-                    Rating = 1,
-                    Decks = new   List<Deck>
-                    {
-                        new Deck { Name = "UW Control", Placement = "30 pts" },
-                    },
-                },
-                new Tournament
-                {
-                    Name = "MagicFest Online Weekly Championship",
-                    Rating = 4,
-                    Decks = new   List<Deck>
-                    {
-                        new Deck { Name = "Bant Control", Placement = "1"  },
-                        new Deck { Name = "Simic Flash", Placement = "2"  },
-                        new Deck { Name = "Fires of Invention", Placement = "3-4"  },
-                    },
-                },
-            };
-        }
-
         public OverlayViewModel(IFetchService fetchService, Database database)
         {
             _fetchService = fetchService;
@@ -95,10 +68,10 @@ namespace Crabtopus.ViewModels
 
         private void ExportDeck(Deck deck)
         {
-            var exportedDeck = string.Join(Environment.NewLine, deck.Cards.Where(x => !x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Title}"))
-            + Environment.NewLine
-            + Environment.NewLine
-            + string.Join(Environment.NewLine, deck.Cards.Where(x => x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Title}"));
+            string exportedDeck = string.Join(Environment.NewLine, deck.Cards.Where(x => !x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Title}"))
+                + Environment.NewLine
+                + Environment.NewLine
+                + string.Join(Environment.NewLine, deck.Cards.Where(x => x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Title}"));
 
             Clipboard.SetText(exportedDeck);
             Tooltip = "Copied!";
