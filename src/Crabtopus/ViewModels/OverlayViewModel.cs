@@ -109,7 +109,12 @@ namespace Crabtopus.ViewModels
             tournament_.Decks = tournament_.Decks.OrderBy(x => x.Placement).ToList();
             foreach (Deck deck in tournament_.Decks)
             {
-                deck.Cards = deck.Cards.OrderBy(c => c.IsSideboard).ThenBy(x => GetTypePriority(x.Card?.TypeList.First())).ToList();
+                deck.Cards = deck
+                    .Cards
+                    .OrderBy(c => c.IsSideboard)
+                    .ThenBy(x => GetTypePriority(x.Card?.TypeList.First()))
+                    .ThenBy(x => x.Card?.ConvertedManaCost)
+                    .ToList();
             }
             Tournaments.Add(tournament_);
             return;
