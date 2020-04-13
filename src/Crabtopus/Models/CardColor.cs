@@ -1,6 +1,6 @@
 ﻿namespace Crabtopus.Models
 {
-    internal enum Color
+    internal enum CardColor
     {
         None = 0,
         W = 1,

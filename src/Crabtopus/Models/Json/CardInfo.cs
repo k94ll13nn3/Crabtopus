@@ -20,8 +20,8 @@ namespace Crabtopus.Models.Json
         [JsonPropertyName("set")]
         public string Set { get; set; } = string.Empty;
 
-        [JsonPropertyName("title")]
-        public string Title { get; set; } = string.Empty;
+        [JsonIgnore]
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("rarity")]
         public int RarityValue { get; set; }

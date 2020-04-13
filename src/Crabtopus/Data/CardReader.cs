@@ -68,7 +68,7 @@ namespace Crabtopus.Data
 
                         foreach (CardInfo card in deserializedCards)
                         {
-                            card.Title = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
+                            card.Name = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
                         }
 
                         var cards = deserializedCards.Where(x => !x.IsToken).Select(x => new Card
@@ -76,7 +76,7 @@ namespace Crabtopus.Data
                             CollectorNumber = x.CollectorNumber,
                             Id = x.Id,
                             Set = x.Set,
-                            Title = x.Title,
+                            Name = x.Name,
                             Rarity = x.RarityValue switch
                             {
                                 2 => Rarity.Common,

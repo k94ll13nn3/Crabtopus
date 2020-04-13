@@ -68,10 +68,10 @@ namespace Crabtopus.ViewModels
 
         private void ExportDeck(Deck deck)
         {
-            string exportedDeck = string.Join(Environment.NewLine, deck.Cards.Where(x => !x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Title}"))
+            string exportedDeck = string.Join(Environment.NewLine, deck.Cards.Where(x => !x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Name}"))
                 + Environment.NewLine
                 + Environment.NewLine
-                + string.Join(Environment.NewLine, deck.Cards.Where(x => x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Title}"));
+                + string.Join(Environment.NewLine, deck.Cards.Where(x => x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Name}"));
 
             Clipboard.SetText(exportedDeck);
             Tooltip = "Copied!";
@@ -82,9 +82,41 @@ namespace Crabtopus.ViewModels
             });
         }
 
+        private int GetTypePriority(CardType? cardType)
+        {
+            return cardType switch
+            {
+                CardType.Creature => 0,
+                CardType.Instant => 10,
+                CardType.Sorcery => 10,
+                CardType.Artifact => 20,
+                CardType.Enchantment => 20,
+                CardType.Planeswalker => 20,
+                CardType.Land => 30,
+                CardType.None => 40,
+                _ => 40,
+            };
+        }
+
         private async Task LoadAsync()
         {
-            ICollection<(int id, string name, int rating, DateTime date)>? tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
+            // TOTO: remove v
+            // Sort by sideboard false then true
+            // And by creature, instant/sorcery, other, lands
+            Tournament tournament_ = await _database.Tournaments.Include(t => t.Decks)
+                                    .ThenInclude(d => d.Cards)
+                                    .ThenInclude(dc => dc.Card).FirstOrDefaultAsync();
+            tournament_.Decks = tournament_.Decks.OrderBy(x => x.Placement).ToList();
+            foreach (Deck deck in tournament_.Decks)
+            {
+                deck.Cards = deck.Cards.OrderBy(c => c.IsSideboard).ThenBy(x => GetTypePriority(x.Card?.TypeList.First())).ToList();
+            }
+            Tournaments.Add(tournament_);
+            return;
+            // TODO: remove ^
+            ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
+            Text = $"Decks 0/{tournamentInfos.Count}";
+
             foreach ((int id, string name, int rating, DateTime date) in tournamentInfos)
             {
                 Tournament? tournament = await _database

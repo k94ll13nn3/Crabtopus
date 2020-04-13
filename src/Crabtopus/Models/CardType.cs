@@ -1,6 +1,6 @@
 ﻿namespace Crabtopus.Models
 {
-    internal enum Type
+    internal enum CardType
     {
         None = 0,
         Artifact = 1,

@@ -13,7 +13,7 @@ namespace Crabtopus.Models
 
         public string Set { get; set; } = string.Empty;
 
-        public string Title { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
         public Rarity Rarity { get; set; }
 
@@ -26,9 +26,9 @@ namespace Crabtopus.Models
         public int ConvertedManaCost { get; set; }
 
         [NotMapped]
-        public IEnumerable<Color> ColorList => Colors.Split(';').Select(Enum.Parse<Color>);
+        public ICollection<CardColor> ColorList => Colors.Split(';').Select(Enum.Parse<CardColor>).ToList();
 
         [NotMapped]
-        public IEnumerable<Type> TypeList => Types.Split(';').Select(Enum.Parse<Type>);
+        public ICollection<CardType> TypeList => Types.Split(';').Select(Enum.Parse<CardType>).ToList();
     }
 }

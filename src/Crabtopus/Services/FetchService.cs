@@ -116,7 +116,7 @@ namespace Crabtopus.Services
                     Count = count,
                     IsSideboard = isSideboard,
                     DeckId = deckId,
-                    CardId = _database.Cards.First(x => x.Title == name).Id,
+                    CardId = _database.Cards.First(x => x.Name == name).Id,
                 };
             }
         }

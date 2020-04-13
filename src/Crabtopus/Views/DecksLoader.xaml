@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Crabtopus.ViewModels"
+             xmlns:models="clr-namespace:Crabtopus.Models"
              xmlns:converters="clr-namespace:Crabtopus.Converters"
              d:DataContext="{d:DesignInstance Type=vm:OverlayViewModel, IsDesignTimeCreatable=True}"
              mc:Ignorable="d"
@@ -122,10 +123,10 @@
             <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Hidden" Panel.ZIndex="1">
                 <ItemsControl ItemsSource="{Binding Tournaments}" HorizontalContentAlignment="Stretch">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate DataType="{x:Type models:Tournament}">
                             <Expander Style="{DynamicResource ExpanderStyle1}" Header="{Binding}"  Foreground="White" ExpandDirection="Down" FontSize="14" FontFamily="pack://application:,,,/Resources/#Righteous">
                                 <Expander.HeaderTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate DataType="{x:Type models:Tournament}">
                                         <StackPanel Orientation="Horizontal">
                                             <Viewbox Width="24" Height="24">
                                                 <Canvas Width="24" Height="24">
@@ -138,24 +139,36 @@
                                 </Expander.HeaderTemplate>
                                 <ItemsControl Margin="5,0,0,0" ItemsSource="{Binding Decks}" HorizontalContentAlignment="Stretch">
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
+                                        <DataTemplate DataType="{x:Type models:Deck}">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Placement}" VerticalAlignment="Center" Foreground="White" Width="45" FontSize="14" TextAlignment="Right"/>
                                                 <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Text="{Binding Name}" Foreground="White" FontSize="14" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" Width="240"/>
-                                                <Button VerticalContentAlignment="Center" HorizontalContentAlignment="Center"  Style="{StaticResource ButtonStyle}" Command="{Binding DataContext.ExportDeckCommand, ElementName=Root}" CommandParameter="{Binding}">
+                                                <Button VerticalContentAlignment="Center" HorizontalContentAlignment="Center"  Style="{StaticResource ButtonStyle}" 
+                                                        ToolTip="Export to MTGA"
+                                                        Command="{Binding DataContext.ExportDeckCommand, ElementName=Root}" CommandParameter="{Binding}">
                                                     <Viewbox Width="20" Height="20">
                                                         <Canvas Width="24" Height="24">
                                                             <Path Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" Fill="White" />
                                                         </Canvas>
                                                     </Viewbox>
                                                 </Button>
-                                                <Button VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Style="{StaticResource ButtonStyle}">
-                                                    <Viewbox Width="20" Height="20">
-                                                        <Canvas Width="24" Height="24">
-                                                            <Path Data="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z" Fill="White" />
-                                                        </Canvas>
-                                                    </Viewbox>
-                                                </Button>
+                                                <Viewbox Width="20" Height="20" ToolTipService.InitialShowDelay="0">
+                                                    <Viewbox.ToolTip>
+                                                        <ItemsControl ItemsSource="{Binding Cards}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate DataType="{x:Type models:DeckCard}">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="{Binding Count}"/>
+                                                                        <TextBlock Margin="5,0,0,0" Text="{Binding Card.Name}"/>
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </Viewbox.ToolTip>
+                                                    <Canvas Width="24" Height="24">
+                                                        <Path Data="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" Fill="White" />
+                                                    </Canvas>
+                                                </Viewbox>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
