@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http;
 using System.Windows;
 using System.Windows.Threading;
 using Crabtopus.Data;
@@ -51,47 +50,69 @@ namespace Crabtopus
         {
             base.OnStartup(e);
 
+            // Load configuration.
             IConfigurationBuilder builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-            IConfigurationRoot? configuration = builder.Build();
+            IConfigurationRoot configuration = builder.Build();
 
-            // Read blobs
-            var logReader = new LogReader();
+            // Configure services.
+            ConfigureServices(configuration);
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.Configure<ApplicationSettings>(configuration.GetSection(nameof(ApplicationSettings)));
-            serviceCollection.Configure<ApplicationSettings>(settings =>
-            {
-                settings.Endpoint = logReader.Endpoint;
-                settings.Version = logReader.Version;
-            });
-            serviceCollection.AddHttpClient("mtgarena", c => c.BaseAddress = logReader.AssetsUri);
-            serviceCollection.AddTransient<OverlayViewModel>();
-            serviceCollection.AddTransient<Overlay>();
-            serviceCollection.AddSingleton<ICardsService, CardsService>();
-            serviceCollection.AddSingleton<IFetchService, FetchService>();
-            serviceCollection.AddSingleton<IBlobsService>(logReader);
-            serviceCollection.AddSingleton<Database>();
-            _serviceProvider = serviceCollection.BuildServiceProvider();
-
+            // Initialize database.
             _serviceProvider.GetService<Database>().Database.EnsureCreated();
 
-            // Read cards
-            IOptions<ApplicationSettings> settings = _serviceProvider.GetService<IOptions<ApplicationSettings>>();
-
-            var cardManager = new CardReader(settings, _serviceProvider.GetService<IHttpClientFactory>(), _serviceProvider.GetService<Database>());
+            // Read cards.
+            CardReader cardManager = _serviceProvider.GetService<CardReader>();
             await cardManager.LoadCardsAsync();
 
+            // Initialize tray icon.
             _taskbarIcon = LoadTaskbarIcon();
+
+            // Initialize overlay.
+            ConfigureOverlay();
+        }
+
+        private void ConfigureOverlay()
+        {
             Overlay overlay = _serviceProvider.GetService<Overlay>();
+            IOptions<ApplicationSettings> settings = _serviceProvider.GetService<IOptions<ApplicationSettings>>();
             var overlayer = new Overlayer(settings.Value.Process, overlay, OverlayPosition.Top | OverlayPosition.Left);
 
             var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
             timer.Tick += (s, e) => overlayer.Update();
 
             timer.Start();
+        }
+
+        private void ConfigureServices(IConfigurationRoot configuration)
+        {
+            // Read MTGA log file.
+            var logReader = new LogReader();
+
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.Configure<ApplicationSettings>(configuration.GetSection(nameof(ApplicationSettings)));
+            serviceCollection.Configure<ApplicationSettings>(settings =>
+            {
+                settings.Endpoint = logReader.Endpoint;
+                settings.Version = logReader.Version;
+            });
+
+            serviceCollection.AddHttpClient("mtgarena", c => c.BaseAddress = logReader.AssetsUri);
+
+            serviceCollection.AddTransient<OverlayViewModel>();
+            serviceCollection.AddTransient<Overlay>();
+            serviceCollection.AddTransient<ICardsService, CardsService>();
+            serviceCollection.AddTransient<IFetchService, FetchService>();
+
+            serviceCollection.AddSingleton<IBlobsService>(logReader);
+            serviceCollection.AddSingleton<CardReader>();
+            serviceCollection.AddSingleton<Database>();
+            serviceCollection.AddSingleton<IConfiguration>(configuration);
+
+            _serviceProvider = serviceCollection.BuildServiceProvider();
         }
 
         private TaskbarIcon LoadTaskbarIcon()
