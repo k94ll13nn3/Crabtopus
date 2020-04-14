@@ -6,8 +6,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/NotifyIconResources.xaml" />
+                <ResourceDictionary Source="/Resources/ManaSymbols.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            
+
             <Style x:Key="FocusVisual">
                 <Setter Property="Control.Template">
                     <Setter.Value>
