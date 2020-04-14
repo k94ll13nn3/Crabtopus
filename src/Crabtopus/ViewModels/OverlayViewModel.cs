@@ -82,43 +82,8 @@ namespace Crabtopus.ViewModels
             });
         }
 
-        private int GetTypePriority(CardType? cardType)
-        {
-            return cardType switch
-            {
-                CardType.Creature => 0,
-                CardType.Instant => 10,
-                CardType.Sorcery => 10,
-                CardType.Artifact => 20,
-                CardType.Enchantment => 20,
-                CardType.Planeswalker => 20,
-                CardType.Land => 30,
-                CardType.None => 40,
-                _ => 40,
-            };
-        }
-
         private async Task LoadAsync()
         {
-            // TOTO: remove v
-            // Sort by sideboard false then true
-            // And by creature, instant/sorcery, other, lands
-            Tournament tournament_ = await _database.Tournaments.Include(t => t.Decks)
-                                    .ThenInclude(d => d.Cards)
-                                    .ThenInclude(dc => dc.Card).FirstOrDefaultAsync();
-            tournament_.Decks = tournament_.Decks.OrderBy(x => x.Placement).ToList();
-            foreach (Deck deck in tournament_.Decks)
-            {
-                deck.Cards = deck
-                    .Cards
-                    .OrderBy(c => c.IsSideboard)
-                    .ThenBy(x => GetTypePriority(x.Card?.TypeList.First()))
-                    .ThenBy(x => x.Card?.ConvertedManaCost)
-                    .ToList();
-            }
-            Tournaments.Add(tournament_);
-            return;
-            // TODO: remove ^
             ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
             Text = $"Decks 0/{tournamentInfos.Count}";
 
@@ -146,8 +111,35 @@ namespace Crabtopus.ViewModels
                 }
 
                 tournament.Decks = tournament.Decks.OrderBy(x => x.Placement).ToList();
+                foreach (Deck deck in tournament.Decks)
+                {
+                    // Sort by sideboard false then true
+                    // And by creature, instant/sorcery, other, lands
+                    deck.Cards = deck
+                        .Cards
+                        .OrderBy(c => c.IsSideboard)
+                        .ThenBy(x => x.Card?.TypeList.Min(x => GetTypePriority(x)))
+                        .ThenBy(x => x.Card?.ConvertedManaCost)
+                        .ToList();
+                }
                 Tournaments.Add(tournament);
                 Text = $"Decks {Tournaments.Count}/{tournamentInfos.Count}";
+            }
+
+            static int GetTypePriority(CardType? cardType)
+            {
+                return cardType switch
+                {
+                    CardType.Creature => 0,
+                    CardType.Instant => 10,
+                    CardType.Sorcery => 10,
+                    CardType.Artifact => 20,
+                    CardType.Enchantment => 20,
+                    CardType.Planeswalker => 20,
+                    CardType.Land => 30,
+                    CardType.None => 40,
+                    _ => 40,
+                };
             }
         }
     }

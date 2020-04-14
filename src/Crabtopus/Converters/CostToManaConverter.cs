@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace Crabtopus.Converters
 {
@@ -19,14 +21,24 @@ namespace Crabtopus.Converters
             {
                 foreach (string manaCost in s.Split('o', StringSplitOptions.RemoveEmptyEntries))
                 {
-                    if (manaCost == "G")
+                    Viewbox? viewBox = manaCost switch
                     {
-                        boxes.Add(Application.Current.FindResource("MonoGreen") as Viewbox);
-                    }
+                        "W" => Application.Current.FindResource("MonoWhite") as Viewbox,
+                        "U" => Application.Current.FindResource("MonoBlue") as Viewbox,
+                        "B" => Application.Current.FindResource("MonoBlack") as Viewbox,
+                        "R" => Application.Current.FindResource("MonoRed") as Viewbox,
+                        "G" => Application.Current.FindResource("MonoGreen") as Viewbox,
+                        "(U/R)" => Application.Current.FindResource("UR") as Viewbox,
+                        "1" => Application.Current.FindResource("OneGeneric") as Viewbox,
+                        "2" => Application.Current.FindResource("TwoGeneric") as Viewbox,
+                        "3" => Application.Current.FindResource("ThreeGeneric") as Viewbox,
+                        "X" => Application.Current.FindResource("XGeneric") as Viewbox,
+                        _ => new Viewbox { Height = 15, Width = 15, Child = new Ellipse { Width = 600, Height = 600, Fill = Brushes.Black } },
+                    };
 
-                    if (manaCost == "R")
+                    if (viewBox != null)
                     {
-                        boxes.Add(Application.Current.FindResource("MonoRed") as Viewbox);
+                        boxes.Add(viewBox);
                     }
                 }
             }

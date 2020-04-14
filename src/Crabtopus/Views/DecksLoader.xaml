@@ -160,7 +160,6 @@
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="{Binding Count}" Width="15" TextAlignment="Right" />
                                                                         <TextBlock Margin="5,0,0,0" Text="{Binding Card.Name}" Width="200"/>
-                                                                        <TextBlock Margin="5,0,0,0" Text="{Binding Card.Cost}" Width="50" TextAlignment="Right"/>
                                                                         <ItemsControl ItemsSource="{Binding Card.Cost, Converter={x:Static converters:CostToManaConverter.Default}}" >
                                                                             <ItemsControl.ItemsPanel>
                                                                                 <ItemsPanelTemplate>
