@@ -71,7 +71,7 @@ namespace Crabtopus.Data
                             card.Name = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
                         }
 
-                        var cards = deserializedCards.Where(x => !x.IsToken).Select(x => new Card
+                        var cards = deserializedCards.Where(x => !x.IsToken && x.IsCollectible).Select(x => new Card
                         {
                             CollectorNumber = x.CollectorNumber,
                             Id = x.Id,
@@ -87,7 +87,7 @@ namespace Crabtopus.Data
                             },
                             Colors = string.Join(';', x.Colors),
                             Types = string.Join(';', x.Types),
-                            Cost = x.Cost,
+                            Cost = string.Join(';', x.Types) == "5" ? string.Empty : x.Cost,
                             ConvertedManaCost = x.ConvertedManaCost,
                         }).ToList();
 
