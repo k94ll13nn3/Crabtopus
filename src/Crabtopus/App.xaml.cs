@@ -50,12 +50,8 @@ namespace Crabtopus
         {
             base.OnStartup(e);
 
-            // Load configuration.
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-
-            IConfigurationRoot configuration = builder.Build();
+            // Generate configuration.
+            IConfigurationRoot configuration = new ConfigurationBuilder().Build();
 
             // Configure services.
             ConfigureServices(configuration);
@@ -93,9 +89,10 @@ namespace Crabtopus
 
             var serviceCollection = new ServiceCollection();
 
-            serviceCollection.Configure<ApplicationSettings>(configuration.GetSection(nameof(ApplicationSettings)));
             serviceCollection.Configure<ApplicationSettings>(settings =>
             {
+                settings.Process = "firefox";
+                settings.SqliteConnectionString = "Data Source=crabtopus.db";
                 settings.Endpoint = logReader.Endpoint;
                 settings.Version = logReader.Version;
             });

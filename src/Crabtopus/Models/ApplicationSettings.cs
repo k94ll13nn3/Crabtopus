@@ -7,5 +7,7 @@
         public string Endpoint { get; set; } = string.Empty;
 
         public string Version { get; set; } = string.Empty;
+
+        public string SqliteConnectionString { get; set; } = string.Empty;
     }
 }

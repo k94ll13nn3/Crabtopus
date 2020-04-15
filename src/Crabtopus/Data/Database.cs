@@ -1,6 +1,6 @@
 ﻿using Crabtopus.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Crabtopus.Data
 {
@@ -8,9 +8,9 @@ namespace Crabtopus.Data
     {
         private readonly string _connectionString;
 
-        public Database(IConfiguration configuration)
+        public Database(IOptions<ApplicationSettings> options)
         {
-            _connectionString = configuration.GetConnectionString("Sqlite");
+            _connectionString = options.Value.SqliteConnectionString;
         }
 
         public DbSet<GameInfo> GameInfos { get; set; } = null!;
