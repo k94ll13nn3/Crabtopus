@@ -33,6 +33,7 @@ namespace Crabtopus.Converters
                         "2" => Application.Current.FindResource("TwoGeneric") as Viewbox,
                         "3" => Application.Current.FindResource("ThreeGeneric") as Viewbox,
                         "X" => Application.Current.FindResource("XGeneric") as Viewbox,
+                        "//" => new Viewbox { Height = 15, Width = 15, Child = new TextBlock { Text = "//" } },
                         _ => new Viewbox { Height = 15, Width = 15, Child = new Ellipse { Width = 600, Height = 600, Fill = Brushes.Black } },
                     };
 

@@ -87,7 +87,7 @@ namespace Crabtopus.Data
                             },
                             Colors = string.Join(';', x.Colors),
                             Types = string.Join(';', x.Types),
-                            Cost = string.Join(';', x.Types) == "5" ? string.Empty : x.Cost,
+                            Cost = GetCost(x, deserializedCards),
                             ConvertedManaCost = x.ConvertedManaCost,
                         }).ToList();
 
@@ -102,6 +102,22 @@ namespace Crabtopus.Data
                     throw new InvalidOperationException("Cannot load cards.", e);
                 }
             }
+        }
+
+        private static string GetCost(CardInfo card, List<CardInfo> deserializedCards)
+        {
+            // Land.
+            if (string.Join(';', card.Types) == "5")
+            {
+                return string.Empty;
+            }
+            // Split card.
+            else if (card.LinkedFaceType == 6)
+            {
+                return string.Join("o//", card.LinkedFaces.Select(linkedCardId => deserializedCards.Single(c => c.Id == linkedCardId).Cost));
+            }
+
+            return card.Cost;
         }
 
         private static string Unzip(byte[] data)

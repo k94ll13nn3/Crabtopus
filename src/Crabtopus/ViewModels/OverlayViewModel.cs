@@ -8,6 +8,7 @@ using System.Windows.Input;
 using Crabtopus.Data;
 using Crabtopus.Models;
 using Crabtopus.Services;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 
 namespace Crabtopus.ViewModels
@@ -127,7 +128,7 @@ namespace Crabtopus.ViewModels
                         .Cards
                         .Where(c => !c.IsSideboard)
                         .GroupBy(x => x.Card?.TypeList.OrderBy(GetTypePriority).First())
-                        .ToDictionary(x => $"{x.Key}s ({x.Sum(c => c.Count)})", x => x.ToList());
+                        .ToDictionary(x => $"{x.Key.ToString().Pluralize()} ({x.Sum(c => c.Count)})", x => x.ToList());
 
                     List<DeckCard> sideboard = deck.Cards.Where(c => c.IsSideboard).ToList();
                     groupedCards[$"Sideboard ({sideboard.Sum(c => c.Count)})"] = sideboard;
