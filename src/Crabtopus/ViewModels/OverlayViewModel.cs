@@ -118,27 +118,38 @@ namespace Crabtopus.ViewModels
                     deck.Cards = deck
                         .Cards
                         .OrderBy(c => c.IsSideboard)
-                        .ThenBy(x => x.Card?.TypeList.Min(x => GetTypePriority(x)))
+                        .ThenBy(x => x.Card?.TypeList.Min(GetTypePriority))
                         .ThenBy(x => x.Card?.ConvertedManaCost)
+                        .ThenBy(x => x.Card?.Name)
                         .ToList();
+
+                    var groupedCards = deck
+                        .Cards
+                        .Where(c => !c.IsSideboard)
+                        .GroupBy(x => x.Card?.TypeList.OrderBy(GetTypePriority).First())
+                        .ToDictionary(x => $"{x.Key}s ({x.Sum(c => c.Count)})", x => x.ToList());
+
+                    List<DeckCard> sideboard = deck.Cards.Where(c => c.IsSideboard).ToList();
+                    groupedCards[$"Sideboard ({sideboard.Sum(c => c.Count)})"] = sideboard;
+                    deck.GroupedCards = groupedCards;
                 }
+
                 Tournaments.Add(tournament);
                 Text = $"Decks {Tournaments.Count}/{tournamentInfos.Count}";
             }
 
-            static int GetTypePriority(CardType? cardType)
+            static int GetTypePriority(CardType cardType)
             {
                 return cardType switch
                 {
-                    CardType.Creature => 0,
-                    CardType.Instant => 10,
-                    CardType.Sorcery => 10,
-                    CardType.Artifact => 20,
-                    CardType.Enchantment => 20,
-                    CardType.Planeswalker => 20,
-                    CardType.Land => 30,
-                    CardType.None => 40,
-                    _ => 40,
+                    CardType.Creature => 1,
+                    CardType.Instant => 2,
+                    CardType.Sorcery => 3,
+                    CardType.Artifact => 4,
+                    CardType.Enchantment => 5,
+                    CardType.Planeswalker => 6,
+                    CardType.Land => 7,
+                    _ => 100,
                 };
             }
         }
