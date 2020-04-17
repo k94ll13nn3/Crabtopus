@@ -9,8 +9,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Crabtopus.Models;
 using Crabtopus.Models.Json;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using EFCore.BulkExtensions;
 
 namespace Crabtopus.Data
 {
@@ -31,7 +31,7 @@ namespace Crabtopus.Data
 
         public async Task LoadCardsAsync()
         {
-            GameInfo gameVersion = _database.GameInfos.FirstOrDefault() ?? new GameInfo();
+            GameInfo gameVersion = _database.GameInfos.OrderByDescending(x => x.Version).FirstOrDefault() ?? new GameInfo();
 
             // Cards are loaded only if the version in base if different from the current game version.
             if (gameVersion.Version != _version)
@@ -71,7 +71,7 @@ namespace Crabtopus.Data
                             card.Name = englishLocalization.Keys.First(x => x.Id == card.TitleId).Text;
                         }
 
-                        var cards = deserializedCards.Where(x => !x.IsToken && x.IsCollectible).Select(x => new Card
+                        var cards = deserializedCards.Where(x => !x.IsToken && x.IsPrimaryCard).Select(x => new Card
                         {
                             CollectorNumber = x.CollectorNumber,
                             Id = x.Id,
@@ -91,9 +91,9 @@ namespace Crabtopus.Data
                             ConvertedManaCost = x.ConvertedManaCost,
                         }).ToList();
 
+                        gameVersion.Id = 0;
                         _database.GameInfos.Add(gameVersion);
-                        _database.Database.ExecuteSqlRaw("DELETE FROM Cards");
-                        _database.Cards.AddRange(cards);
+                        _database.BulkInsertOrUpdate(cards);
                         _database.SaveChanges();
                     }
                 }

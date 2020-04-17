@@ -38,8 +38,8 @@ namespace Crabtopus.Models.Json
         [JsonPropertyName("types")]
         public List<int> Types { get; set; } = new List<int>();
 
-        [JsonPropertyName("isCollectible")]
-        public bool IsCollectible { get; set; }
+        [JsonPropertyName("isPrimaryCard")]
+        public bool IsPrimaryCard { get; set; }
 
         [JsonPropertyName("linkedFaceType")]
         public int LinkedFaceType { get; set; }
