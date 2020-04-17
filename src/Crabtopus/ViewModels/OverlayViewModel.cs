@@ -88,7 +88,7 @@ namespace Crabtopus.ViewModels
             ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
             Text = $"Decks 0/{tournamentInfos.Count}";
 
-            foreach ((int id, string name, int rating, DateTime date) in tournamentInfos)
+            foreach ((int id, string name, int rating, DateTime date) in tournamentInfos.OrderByDescending(t => t.date))
             {
                 Tournament? tournament = await _database
                         .Tournaments
