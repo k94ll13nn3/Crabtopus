@@ -29,6 +29,7 @@ namespace Crabtopus.Converters
                         "R" => Application.Current.FindResource("MonoRed") as Viewbox,
                         "G" => Application.Current.FindResource("MonoGreen") as Viewbox,
                         "(U/R)" => Application.Current.FindResource("UR") as Viewbox,
+                        "(U/B)" => Application.Current.FindResource("UB") as Viewbox,
                         "1" => Application.Current.FindResource("OneGeneric") as Viewbox,
                         "2" => Application.Current.FindResource("TwoGeneric") as Viewbox,
                         "3" => Application.Current.FindResource("ThreeGeneric") as Viewbox,
