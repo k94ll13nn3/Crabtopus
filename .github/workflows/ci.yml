@@ -18,7 +18,10 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.201
+    - name: Build application
+      run: dotnet build -c Release
     - name: Publish application
+      if: contains(github.ref, 'tags')
       run: dotnet publish -c Release -r win-x64 -o publish/
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
