@@ -29,8 +29,8 @@
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
     
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.0.8" />
-    <PackageReference Include="AngleSharp" Version="0.13.0" />
-    <PackageReference Include="Humanizer" Version="2.7.9" />
+    <PackageReference Include="AngleSharp" Version="0.14.0" />
+    <PackageReference Include="Humanizer" Version="2.8.2" />
     <PackageReference Include="EFCore.BulkExtensions" Version="3.1.1" />
 
     <PackageReference Include="WpfAnalyzers" Version="2.4.5">

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Web;
 using AngleSharp;
 using AngleSharp.Dom;
+using AngleSharp.Io;
 using Crabtopus.Data;
 using Crabtopus.Models;
 
@@ -19,7 +20,13 @@ namespace Crabtopus.Services
 
         public FetchService(Database database)
         {
-            _context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+            var config = new LoaderOptions();
+            IConfiguration configuration = Configuration.Default
+                .With(new DefaultHttpRequester())
+                .With<IDocumentLoader>(ctx => new CrabtopusDocumentLoader(ctx, config.Filter))
+                .With<IResourceLoader>(ctx => new DefaultResourceLoader(ctx, config.Filter));
+
+            _context = BrowsingContext.New(configuration);
             _database = database;
         }
 
@@ -118,6 +125,37 @@ namespace Crabtopus.Services
                     DeckId = deckId,
                     CardId = _database.Cards.First(x => x.Name == name).Id,
                 };
+            }
+        }
+
+        // https://github.com/AngleSharp/AngleSharp/blob/master/src/AngleSharp/Io/DefaultDocumentLoader.cs
+        private class CrabtopusDocumentLoader : BaseLoader, IDocumentLoader
+        {
+            public CrabtopusDocumentLoader(IBrowsingContext context, Predicate<Request> filter)
+                : base(context, filter)
+            {
+            }
+
+            public virtual IDownload FetchAsync(DocumentRequest request)
+            {
+                _ = request ?? throw new ArgumentNullException(nameof(request));
+
+                var data = new Request
+                {
+                    Address = request.Target,
+                    Content = request.Body,
+                    Method = request.Method,
+                };
+
+                foreach (var header in request.Headers)
+                {
+                    data.Headers[header.Key] = header.Value;
+                }
+
+                // Needed since in 0.14, AngleSharp is forcing Accept header.
+                data.Headers["Accept"] = "text/html,application/xhtml+xml,application/xml,application/x-httpd-php";
+
+                return DownloadAsync(data, request.Source);
             }
         }
     }
