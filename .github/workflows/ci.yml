@@ -22,7 +22,7 @@ jobs:
       run: dotnet publish -c Release -r win-x64 -o publish/
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
-      if: contains(github.ref, "tags")
+      if: contains(github.ref, 'tags')
       with:
         # Artifact name
         name: Crabtopus.exe
