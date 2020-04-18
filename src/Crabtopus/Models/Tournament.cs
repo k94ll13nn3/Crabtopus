@@ -14,5 +14,7 @@ namespace Crabtopus.Models
         public int Rating { get; set; }
 
         public ICollection<Deck> Decks { get; set; } = new List<Deck>();
+
+        public override string ToString() => $"{Name} on {Date.ToShortDateString()}";
     }
 }

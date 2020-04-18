@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Globalization;
+using System.Threading;
 using System.Windows;
+using System.Windows.Markup;
 using System.Windows.Threading;
 using Crabtopus.Data;
 using Crabtopus.Infrastructure;
@@ -19,6 +22,18 @@ namespace Crabtopus
         private IServiceProvider? _serviceProvider;
         private TaskbarIcon? _taskbarIcon;
         private bool _disposedValue;
+
+        public App()
+        {
+            CultureInfo cultureInfo = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+            Thread.CurrentThread.CurrentUICulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+            FrameworkElement.LanguageProperty.OverrideMetadata(
+                typeof(FrameworkElement),
+                new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.Name)));
+        }
 
         public void Dispose()
         {
