@@ -21,6 +21,7 @@ namespace Crabtopus.ViewModels
         private string _text = "Decks";
         private string _tooltip = string.Empty;
         private bool _displayPopup;
+        private bool _loaded;
 
         public OverlayViewModel(IFetchService fetchService, Database database)
         {
@@ -30,6 +31,7 @@ namespace Crabtopus.ViewModels
             ShowPopupCommand = new DelegateCommand(() => DisplayPopup = true);
             ClosePopupCommand = new DelegateCommand(() => DisplayPopup = false);
             LoadCommand = new DelegateCommand(async () => await LoadAsync());
+            ReloadCommand = new DelegateCommand(async () => await ReloadAsync());
             ExportDeckCommand = new DelegateCommand<Deck>(ExportDeck);
         }
 
@@ -41,7 +43,15 @@ namespace Crabtopus.ViewModels
 
         public ICommand LoadCommand { get; set; }
 
+        public ICommand ReloadCommand { get; set; }
+
         public ICommand ExportDeckCommand { get; set; }
+
+        public bool Loaded
+        {
+            get => _loaded;
+            set => SetProperty(ref _loaded, value);
+        }
 
         public bool DisplayPopup
         {
@@ -85,48 +95,31 @@ namespace Crabtopus.ViewModels
 
         private async Task LoadAsync()
         {
-            ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
-            Text = $"Decks 0/{tournamentInfos.Count}";
+            Loaded = false;
+            List<Tournament> tournaments = await _database
+                .Tournaments
+                .Include(t => t.Decks)
+                .ThenInclude(d => d.Cards)
+                .ThenInclude(dc => dc.Card)
+                .OrderByDescending(t => t.Date)
+                .ToListAsync();
 
-            foreach ((int id, string name, int rating, DateTime date) in tournamentInfos.OrderByDescending(t => t.date))
+            Tournaments.Clear();
+            Text = $"Decks {Tournaments.Count}/{tournaments.Count}";
+            foreach (Tournament tournament in tournaments)
             {
-                Tournament? tournament = await _database
-                        .Tournaments
-                        .Include(t => t.Decks)
-                        .ThenInclude(d => d.Cards)
-                        .ThenInclude(dc => dc.Card)
-                        .FirstOrDefaultAsync(x => x.Id == id);
-                if (tournament is null)
-                {
-                    ICollection<Deck> decks = await _fetchService.GetDecksAsync(id);
-                    tournament = new Tournament
-                    {
-                        Id = id,
-                        Name = name,
-                        Decks = decks,
-                        Date = date,
-                        Rating = rating
-                    };
-                    _database.Tournaments.Add(tournament);
-                    _database.SaveChanges();
-                }
-
                 tournament.Decks = tournament.Decks.OrderBy(x => x.Placement).ToList();
                 foreach (Deck deck in tournament.Decks)
                 {
                     // Sort by sideboard false then true
                     // And by creature, instant/sorcery, other, lands
-                    deck.Cards = deck
+                    var groupedCards = deck
                         .Cards
+                        .Where(c => !c.IsSideboard)
                         .OrderBy(c => c.IsSideboard)
                         .ThenBy(x => x.Card?.TypeList.Min(GetTypePriority))
                         .ThenBy(x => x.Card?.ConvertedManaCost)
                         .ThenBy(x => x.Card?.Name)
-                        .ToList();
-
-                    var groupedCards = deck
-                        .Cards
-                        .Where(c => !c.IsSideboard)
                         .GroupBy(x => x.Card?.TypeList.OrderBy(GetTypePriority).First())
                         .ToDictionary(x => $"{x.Key.ToString().Pluralize()} ({x.Sum(c => c.Count)})", x => x.ToList());
 
@@ -136,8 +129,10 @@ namespace Crabtopus.ViewModels
                 }
 
                 Tournaments.Add(tournament);
-                Text = $"Decks {Tournaments.Count}/{tournamentInfos.Count}";
+                Text = $"Decks {Tournaments.Count}/{tournaments.Count}";
             }
+
+            Loaded = true;
 
             static int GetTypePriority(CardType cardType)
             {
@@ -153,6 +148,32 @@ namespace Crabtopus.ViewModels
                     _ => 100,
                 };
             }
+        }
+
+        private async Task ReloadAsync()
+        {
+            Loaded = false;
+            ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
+            foreach ((int id, string name, int rating, DateTime date) in tournamentInfos.OrderByDescending(t => t.date))
+            {
+                Tournament? tournament = await _database.Tournaments.FirstOrDefaultAsync(x => x.Id == id);
+                if (tournament is null)
+                {
+                    ICollection<Deck> decks = await _fetchService.GetDecksAsync(id);
+                    tournament = new Tournament
+                    {
+                        Id = id,
+                        Name = name,
+                        Decks = decks,
+                        Date = date,
+                        Rating = rating
+                    };
+                    _database.Tournaments.Add(tournament);
+                    _database.SaveChanges();
+                }
+            }
+
+            await LoadAsync();
         }
     }
 }

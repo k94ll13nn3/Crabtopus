@@ -105,11 +105,24 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
-            <Button Command="{Binding ClosePopupCommand}" Grid.Column="1" Width="24" Height="24"
-                VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Panel.ZIndex="10"
-                Style="{StaticResource ButtonStyle}">
+            <Button Command="{Binding ReloadCommand}" Grid.Column="1" Width="24" Height="24"
+                    VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Panel.ZIndex="10"
+                    Style="{StaticResource ButtonStyle}"
+                    Margin="5,0,5,0">
+                <Viewbox Width="20" Height="20">
+                    <Canvas Width="24" Height="24">
+                        <Path Data="M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z" 
+                        Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
+                    </Canvas>
+                </Viewbox>
+            </Button>
+
+            <Button Command="{Binding ClosePopupCommand}" Grid.Column="2" Width="24" Height="24"
+                    VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Panel.ZIndex="10"
+                    Style="{StaticResource ButtonStyle}">
                 <Viewbox Width="20" Height="20">
                     <Canvas Width="24" Height="24">
                         <Path Data="M19,3H16.3H7.7H5A2,2 0 0,0 3,5V7.7V16.4V19A2,2 0 0,0 5,21H7.7H16.4H19A2,2 0 0,0 21,19V16.3V7.7V5A2,2 0 0,0 19,3M15.6,17L12,13.4L8.4,17L7,15.6L10.6,12L7,8.4L8.4,7L12,10.6L15.6,7L17,8.4L13.4,12L17,15.6L15.6,17Z" 
@@ -119,8 +132,38 @@
             </Button>
 
             <TextBlock Text="{Binding Text}" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="5" FontFamily="pack://application:,,,/Resources/#Righteous"></TextBlock>
-            
-            <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Hidden" Panel.ZIndex="1">
+
+            <Viewbox Width="50" Height="50" Grid.Row="1" Grid.ColumnSpan="3"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"
+                     Visibility="{Binding Loaded, Converter={x:Static converters:BoolToVisibilityConverter.Inverse}}"
+                     RenderTransformOrigin="0.5, 0.5">
+                <Viewbox.RenderTransform>
+                    <RotateTransform x:Name="MyAnimatedTransform" Angle="0" />
+                </Viewbox.RenderTransform>
+                <Viewbox.Triggers>
+                    <EventTrigger RoutedEvent="Viewbox.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation
+                                        Storyboard.TargetName="MyAnimatedTransform"
+                                        Storyboard.TargetProperty="(RotateTransform.Angle)"
+                                        From="0.0" To="360" Duration="0:0:1"
+                                        RepeatBehavior="Forever"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Viewbox.Triggers>
+                <Canvas Width="24" Height="24">
+                    <Path Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" Fill="White" />
+                    <Path Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" Fill="White" RenderTransformOrigin="1,1">
+                        <Path.RenderTransform>
+                            <RotateTransform Angle="180" />
+                        </Path.RenderTransform>
+                    </Path>
+                </Canvas>
+            </Viewbox>
+
+            <ScrollViewer Grid.Row="1" Grid.ColumnSpan="3" VerticalScrollBarVisibility="Hidden" Panel.ZIndex="1" Visibility="{Binding Loaded, Converter={x:Static converters:BoolToVisibilityConverter.Default}}">
                 <ItemsControl ItemsSource="{Binding Tournaments}" HorizontalContentAlignment="Stretch">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:Tournament}">
