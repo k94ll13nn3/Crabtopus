@@ -81,7 +81,13 @@ namespace Crabtopus
             _taskbarIcon = LoadTaskbarIcon();
 
             // Initialize overlay.
+#if DEBUG
+            Overlay overlay = _serviceProvider.GetService<Overlay>();
+            overlay.Show();
+#else
             ConfigureOverlay();
+
+#endif
         }
 
         private void ConfigureOverlay()
@@ -105,7 +111,7 @@ namespace Crabtopus
 
             serviceCollection.Configure<ApplicationSettings>(settings =>
             {
-                settings.Process = "firefox";
+                settings.Process = "MTGA";
                 settings.SqliteConnectionString = "Data Source=crabtopus.db";
                 settings.Endpoint = logReader.Endpoint;
                 settings.Version = logReader.Version;
