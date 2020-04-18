@@ -2,15 +2,18 @@ name: .NET Core
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - master
+  pull_request:
 
 jobs:
   build:
-
+    name: windows-latest
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -19,6 +22,7 @@ jobs:
       run: dotnet publish -c Release -r win-x64 -o publish/
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
+      if: contains(github.ref, "tags")
       with:
         # Artifact name
         name: Crabtopus.exe
