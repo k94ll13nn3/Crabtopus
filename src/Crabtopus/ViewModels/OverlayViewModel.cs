@@ -18,7 +18,7 @@ namespace Crabtopus.ViewModels
         private readonly IFetchService _fetchService;
         private readonly Database _database;
         private string _title = "CRABTOPUS";
-        private string _text = "Decks";
+        private string _text = "Decks (0)";
         private string _tooltip = string.Empty;
         private bool _displayPopup;
         private bool _loaded;
@@ -105,7 +105,6 @@ namespace Crabtopus.ViewModels
                 .ToListAsync();
 
             Tournaments.Clear();
-            Text = $"Decks {Tournaments.Count}/{tournaments.Count}";
             foreach (Tournament tournament in tournaments)
             {
                 tournament.Decks = tournament.Decks.OrderBy(x => x.Placement).ToList();
@@ -129,9 +128,9 @@ namespace Crabtopus.ViewModels
                 }
 
                 Tournaments.Add(tournament);
-                Text = $"Decks {Tournaments.Count}/{tournaments.Count}";
             }
 
+            Text = $"Decks ({Tournaments.Count})";
             Loaded = true;
 
             static int GetTypePriority(CardType cardType)
