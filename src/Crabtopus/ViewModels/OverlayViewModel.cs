@@ -88,7 +88,7 @@ namespace Crabtopus.ViewModels
             Notification = "Copied!";
             Task.Run(async () =>
             {
-                await Task.Delay(2000);
+                await Task.Delay(1000);
                 Notification = string.Empty;
             });
         }

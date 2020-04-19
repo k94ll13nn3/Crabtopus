@@ -24,7 +24,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
-                    <Border Padding="{TemplateBinding Padding}">
+                    <Border Padding="{TemplateBinding Padding}" Cursor="Hand">
                         <Grid Height="24" Background="Transparent" SnapsToDevicePixels="False">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="24" />

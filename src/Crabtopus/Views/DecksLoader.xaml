@@ -162,7 +162,7 @@
                                       Style="{DynamicResource ExpanderStyle}">
                                 <Expander.HeaderTemplate>
                                     <DataTemplate DataType="{x:Type models:Tournament}">
-                                        <StackPanel Orientation="Horizontal">
+                                        <StackPanel Orientation="Horizontal" Cursor="Hand">
                                             <Viewbox Width="24" Height="24">
                                                 <Canvas Width="24" Height="24">
                                                     <Path Data="{Binding Rating, Converter={x:Static converters:RatingToPathConverter.Default}}" Fill="White" />
