@@ -43,10 +43,10 @@
 
     <Border Width="350"
             Height="500"
-            Margin="5"
+            Margin="0,5,0,0"
             Background="#282c34"
             BorderBrush="#3949AB"
-            BorderThickness="2">
+            BorderThickness="0">
         <Border.Effect>
             <DropShadowEffect ShadowDepth="3" />
         </Border.Effect>
@@ -72,7 +72,8 @@
                     VerticalContentAlignment="Center"
                     Panel.ZIndex="10"
                     Command="{Binding ReloadCommand}"
-                    Style="{StaticResource ButtonStyle}">
+                    Style="{StaticResource ButtonStyle}"
+                    ToolTip="Reload decks">
                 <Viewbox Width="20" Height="20">
                     <Canvas Width="24" Height="24">
                         <Path Data="M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
@@ -88,7 +89,8 @@
                     VerticalContentAlignment="Center"
                     Panel.ZIndex="10"
                     Command="{Binding ClosePopupCommand}"
-                    Style="{StaticResource ButtonStyle}">
+                    Style="{StaticResource ButtonStyle}"
+                    ToolTip="Close">
                 <Viewbox Width="20" Height="20">
                     <Canvas Width="24" Height="24">
                         <Path Data="M19,3H16.3H7.7H5A2,2 0 0,0 3,5V7.7V16.4V19A2,2 0 0,0 5,21H7.7H16.4H19A2,2 0 0,0 21,19V16.3V7.7V5A2,2 0 0,0 19,3M15.6,17L12,13.4L8.4,17L7,15.6L10.6,12L7,8.4L8.4,7L12,10.6L15.6,7L17,8.4L13.4,12L17,15.6L15.6,17Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}" />
@@ -144,12 +146,15 @@
             <ScrollViewer Grid.Row="1"
                           Grid.ColumnSpan="3"
                           Panel.ZIndex="1"
+                          Background="#3949AB"
                           VerticalScrollBarVisibility="Hidden"
                           Visibility="{Binding Loaded, Converter={x:Static converters:BoolToVisibilityConverter.Default}}">
                 <ItemsControl HorizontalContentAlignment="Stretch" ItemsSource="{Binding Tournaments}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:Tournament}">
-                            <Expander ExpandDirection="Down"
+                            <Expander BorderBrush="#282c34"
+                                      BorderThickness="0,2,0,0"
+                                      ExpandDirection="Down"
                                       FontFamily="pack://application:,,,/Resources/#Righteous"
                                       FontSize="14"
                                       Foreground="White"
@@ -175,7 +180,10 @@
                                     </DataTemplate>
                                 </Expander.HeaderTemplate>
 
-                                <ItemsControl Margin="5,0,0,0" HorizontalContentAlignment="Stretch" ItemsSource="{Binding Decks}">
+                                <ItemsControl Padding="0,2,0,2"
+                                              HorizontalContentAlignment="Stretch"
+                                              Background="#555555"
+                                              ItemsSource="{Binding Decks}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type models:Deck}">
                                             <StackPanel Orientation="Horizontal">
@@ -229,8 +237,8 @@
 
             <!--  Notification  -->
             <TextBlock Grid.Row="2"
-                       Height="30"
-                       HorizontalAlignment="Center"
+                       Grid.ColumnSpan="3"
+                       Margin="5"
                        FontFamily="pack://application:,,,/Resources/#Righteous"
                        FontSize="14"
                        Foreground="White"
