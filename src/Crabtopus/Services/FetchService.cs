@@ -116,14 +116,15 @@ namespace Crabtopus.Services
             DeckCard GetDeckCard(string textContent, bool isSideboard)
             {
                 string[] parts = textContent.Split(' ', 2);
-                string name = parts[1].Replace("/", "//", StringComparison.OrdinalIgnoreCase).Trim();
+                // Temporary fix for the hyphen bug with Lurrus (no hypen in MTGA but has one on MTGTop8).
+                string name = parts[1].Replace("/", "//", StringComparison.OrdinalIgnoreCase).Replace('-', ' ').Trim();
                 int count = int.Parse(parts[0], CultureInfo.InvariantCulture);
                 return new DeckCard
                 {
                     Count = count,
                     IsSideboard = isSideboard,
                     DeckId = deckId,
-                    CardId = _database.Cards.First(x => x.Name == name).Id,
+                    CardId = _database.Cards.First(x => x.Name.Replace("-", " ", StringComparison.OrdinalIgnoreCase) == name).Id,
                 };
             }
         }
