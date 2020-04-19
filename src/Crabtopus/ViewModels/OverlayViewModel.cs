@@ -18,8 +18,8 @@ namespace Crabtopus.ViewModels
         private readonly IFetchService _fetchService;
         private readonly Database _database;
         private string _title = "CRABTOPUS";
-        private string _text = "Decks (0)";
-        private string _tooltip = string.Empty;
+        private string _popupTitle = "Decks (0)";
+        private string _notification = string.Empty;
         private bool _displayPopup;
         private bool _loaded;
 
@@ -65,16 +65,16 @@ namespace Crabtopus.ViewModels
             set => SetProperty(ref _title, value);
         }
 
-        public string Text
+        public string PopupTitle
         {
-            get => _text;
-            set => SetProperty(ref _text, value);
+            get => _popupTitle;
+            set => SetProperty(ref _popupTitle, value);
         }
 
-        public string Tooltip
+        public string Notification
         {
-            get => _tooltip;
-            set => SetProperty(ref _tooltip, value);
+            get => _notification;
+            set => SetProperty(ref _notification, value);
         }
 
         private void ExportDeck(Deck deck)
@@ -85,11 +85,11 @@ namespace Crabtopus.ViewModels
                 + string.Join(Environment.NewLine, deck.Cards.Where(x => x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Name}"));
 
             Clipboard.SetText(exportedDeck);
-            Tooltip = "Copied!";
+            Notification = "Copied!";
             Task.Run(async () =>
             {
                 await Task.Delay(2000);
-                Tooltip = string.Empty;
+                Notification = string.Empty;
             });
         }
 
@@ -130,7 +130,7 @@ namespace Crabtopus.ViewModels
                 Tournaments.Add(tournament);
             }
 
-            Text = $"Decks ({Tournaments.Count})";
+            PopupTitle = $"Decks ({Tournaments.Count})";
             Loaded = true;
 
             static int GetTypePriority(CardType cardType)
