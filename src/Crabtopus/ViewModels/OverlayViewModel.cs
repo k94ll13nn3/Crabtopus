@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -149,27 +150,37 @@ namespace Crabtopus.ViewModels
             }
         }
 
+        [SuppressMessage("Design", "CA1031", Justification = "Error can come from the base, the website, ... and the app must not crash.")]
         private async Task ReloadAsync()
         {
-            Loaded = false;
-            ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
-            foreach ((int id, string name, int rating, DateTime date) in tournamentInfos.OrderByDescending(t => t.date))
+            try
             {
-                Tournament? tournament = await _database.Tournaments.FirstOrDefaultAsync(x => x.Id == id);
-                if (tournament is null)
+                Loaded = false;
+                ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
+                foreach ((int id, string name, int rating, DateTime date) in tournamentInfos.OrderByDescending(t => t.date))
                 {
-                    ICollection<Deck> decks = await _fetchService.GetDecksAsync(id);
-                    tournament = new Tournament
+                    Tournament? tournament = await _database.Tournaments.FirstOrDefaultAsync(x => x.Id == id);
+                    if (tournament is null)
                     {
-                        Id = id,
-                        Name = name,
-                        Decks = decks,
-                        Date = date,
-                        Rating = rating
-                    };
-                    _database.Tournaments.Add(tournament);
-                    _database.SaveChanges();
+                        ICollection<Deck> decks = await _fetchService.GetDecksAsync(id);
+                        tournament = new Tournament
+                        {
+                            Id = id,
+                            Name = name,
+                            Decks = decks,
+                            Date = date,
+                            Rating = rating
+                        };
+                        _database.Tournaments.Add(tournament);
+                        _database.SaveChanges();
+                    }
                 }
+            }
+            catch (Exception)
+            {
+                Notification = "Error while fetching decks!";
+                await Task.Delay(1000);
+                Notification = string.Empty;
             }
 
             await LoadAsync();
