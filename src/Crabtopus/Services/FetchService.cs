@@ -96,8 +96,8 @@ namespace Crabtopus.Services
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&d={deckId}&f=ST";
             IDocument document = await _context.OpenAsync(address);
-            const string mainDeckSelector = "table.Stable:nth-child(3) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:not(:last-child) > table > tbody > tr > td > div:nth-child(1)";
-            const string sideboardSelector = "table.Stable:nth-child(3) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:last-child > table > tbody > tr > td > div:nth-child(1)";
+            const string mainDeckSelector = "table.Stable:nth-child(3) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:not(:last-child) > table > tbody > tr > td > div:last-child";
+            const string sideboardSelector = "table.Stable:nth-child(3) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:last-child > table > tbody > tr > td > div:last-child";
             IHtmlCollection<IElement> mainDeckCells = document.QuerySelectorAll(mainDeckSelector);
             IHtmlCollection<IElement> sideboardCells = document.QuerySelectorAll(sideboardSelector);
 
@@ -116,7 +116,7 @@ namespace Crabtopus.Services
             DeckCard GetDeckCard(string textContent, bool isSideboard)
             {
                 string[] parts = textContent.Split(' ', 2);
-                // Temporary fix for the hyphen bug with Lurrus (no hypen in MTGA but has one on MTGTop8).
+                // TODO: Remove when Lurrus name is fixed (no hypen in MTGA but has one on MTGTop8).
                 string name = parts[1].Replace("/", "//", StringComparison.OrdinalIgnoreCase).Replace('-', ' ').Trim();
                 int count = int.Parse(parts[0], CultureInfo.InvariantCulture);
                 return new DeckCard
@@ -124,7 +124,7 @@ namespace Crabtopus.Services
                     Count = count,
                     IsSideboard = isSideboard,
                     DeckId = deckId,
-                    CardId = _database.Cards.First(x => x.Name.Replace("-", " ", StringComparison.OrdinalIgnoreCase) == name).Id,
+                    CardId = _database.Cards.First(x => x.Name.Replace("-", " ") == name).Id,
                 };
             }
         }
