@@ -38,8 +38,8 @@ namespace Crabtopus.Data
             {
                 try
                 {
-                    string hash = (await _mtgarenaClient.GetStringAsync(new Uri(_endpoint, UriKind.Relative))).Split(new[] { '\n', '\r' })[0];
-                    byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync(new Uri($"Manifest_{hash}.mtga", UriKind.Relative));
+                    string hash = (await _mtgarenaClient.GetStringAsync(new Uri(_endpoint, UriKind.Relative)).ConfigureAwait(false)).Split(new[] { '\n', '\r' })[0];
+                    byte[] compressedManifest = await _mtgarenaClient.GetByteArrayAsync(new Uri($"Manifest_{hash}.mtga", UriKind.Relative)).ConfigureAwait(false);
                     string uncompressedManifest = Unzip(compressedManifest);
                     Manifest manifest = JsonSerializer.Deserialize<Manifest>(uncompressedManifest);
                     Asset cardsAsset = manifest.Assets.First(x => x.Name.StartsWith("data_cards_", StringComparison.OrdinalIgnoreCase));
@@ -55,12 +55,12 @@ namespace Crabtopus.Data
                         gameVersion.LocalizationHash = localizationsAsset.Hash;
 
                         string cardsFileName = cardsAsset.Name;
-                        byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(new Uri(cardsFileName, UriKind.Relative));
+                        byte[] compressedCards = await _mtgarenaClient.GetByteArrayAsync(new Uri(cardsFileName, UriKind.Relative)).ConfigureAwait(false);
                         string uncompressedCards = Unzip(compressedCards);
                         List<CardInfo> deserializedCards = JsonSerializer.Deserialize<List<CardInfo>>(uncompressedCards);
 
                         string localizationsFileName = localizationsAsset.Name;
-                        byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(new Uri(localizationsFileName, UriKind.Relative));
+                        byte[] compressedLocalizations = await _mtgarenaClient.GetByteArrayAsync(new Uri(localizationsFileName, UriKind.Relative)).ConfigureAwait(false);
                         string uncompressedLocalizations = Unzip(compressedLocalizations);
                         Localization englishLocalization = JsonSerializer
                             .Deserialize<List<Localization>>(uncompressedLocalizations)

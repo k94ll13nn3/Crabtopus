@@ -42,7 +42,7 @@
     </UserControl.Resources>
 
     <Border Width="350"
-            Height="500"
+            Height="450"
             Margin="0,5,0,0"
             Background="#282c34"
             BorderBrush="#3949AB"
@@ -101,68 +101,75 @@
             <!--  Popup title  -->
             <TextBlock Margin="5"
                        VerticalAlignment="Center"
-                       FontFamily="pack://application:,,,/Resources/#Righteous"
+                       FontFamily="pack://application:,,,/Resources/#Montserrat"
                        FontSize="20"
                        Foreground="White"
                        Text="{Binding PopupTitle}" />
 
             <!--  Loading animation  -->
-            <Viewbox Grid.Row="1"
-                     Grid.ColumnSpan="3"
-                     Width="50"
-                     Height="50"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"
-                     RenderTransformOrigin="0.5, 0.5"
-                     Visibility="{Binding Loaded, Converter={x:Static converters:BoolToVisibilityConverter.Inverse}}">
-                <Viewbox.RenderTransform>
-                    <RotateTransform x:Name="RotateAnimation" Angle="0" />
-                </Viewbox.RenderTransform>
-                <Viewbox.Triggers>
-                    <EventTrigger RoutedEvent="Viewbox.Loaded">
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation RepeatBehavior="Forever"
-                                                 Storyboard.TargetName="RotateAnimation"
-                                                 Storyboard.TargetProperty="(RotateTransform.Angle)"
-                                                 From="0.0"
-                                                 To="360"
-                                                 Duration="0:0:1" />
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Viewbox.Triggers>
-                <Canvas Width="24" Height="24">
-                    <Path Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" Fill="White" />
-                    <Path Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" Fill="White" RenderTransformOrigin="1,1">
-                        <Path.RenderTransform>
-                            <RotateTransform Angle="180" />
-                        </Path.RenderTransform>
-                    </Path>
-                </Canvas>
-            </Viewbox>
+            <StackPanel Grid.Row="1"
+                        Grid.ColumnSpan="3"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <Viewbox Width="50"
+                         Height="50"
+                         RenderTransformOrigin="0.5, 0.5"
+                         Visibility="{Binding Loaded, Converter={x:Static converters:BoolToVisibilityConverter.Inverse}}">
+                    <Viewbox.RenderTransform>
+                        <RotateTransform x:Name="RotateAnimation" Angle="0" />
+                    </Viewbox.RenderTransform>
+                    <Viewbox.Triggers>
+                        <EventTrigger RoutedEvent="Viewbox.Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation RepeatBehavior="Forever"
+                                                     Storyboard.TargetName="RotateAnimation"
+                                                     Storyboard.TargetProperty="(RotateTransform.Angle)"
+                                                     From="0.0"
+                                                     To="360"
+                                                     Duration="0:0:2" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Viewbox.Triggers>
+                    <Canvas Width="24" Height="24">
+                        <Path Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" Fill="White" />
+                        <Path Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" Fill="White" RenderTransformOrigin="1,1">
+                            <Path.RenderTransform>
+                                <RotateTransform Angle="180" />
+                            </Path.RenderTransform>
+                        </Path>
+                    </Canvas>
+                </Viewbox>
+
+                <TextBlock FontFamily="pack://application:,,,/Resources/#Montserrat"
+                           FontSize="14"
+                           Foreground="White"
+                           Text="{Binding LoadingText}"
+                           TextAlignment="Center" />
+            </StackPanel>
 
             <!--  Decks list  -->
             <ScrollViewer Grid.Row="1"
                           Grid.ColumnSpan="3"
                           Panel.ZIndex="1"
-                          Background="#3949AB"
                           VerticalScrollBarVisibility="Hidden"
                           Visibility="{Binding Loaded, Converter={x:Static converters:BoolToVisibilityConverter.Default}}">
                 <ItemsControl HorizontalContentAlignment="Stretch" ItemsSource="{Binding Tournaments}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:Tournament}">
-                            <Expander BorderBrush="#282c34"
+                            <Expander Background="#3949AB"
+                                      BorderBrush="#282c34"
                                       BorderThickness="0,2,0,0"
                                       ExpandDirection="Down"
-                                      FontFamily="pack://application:,,,/Resources/#Righteous"
-                                      FontSize="14"
+                                      FontFamily="pack://application:,,,/Resources/#Montserrat"
+                                      FontSize="15"
                                       Foreground="White"
                                       Header="{Binding}"
                                       Style="{DynamicResource ExpanderStyle}">
                                 <Expander.HeaderTemplate>
                                     <DataTemplate DataType="{x:Type models:Tournament}">
-                                        <StackPanel Orientation="Horizontal" Cursor="Hand">
+                                        <StackPanel Cursor="Hand" Orientation="Horizontal">
                                             <Viewbox Width="24" Height="24">
                                                 <Canvas Width="24" Height="24">
                                                     <Path Data="{Binding Rating, Converter={x:Static converters:RatingToPathConverter.Default}}" Fill="White" />
@@ -180,27 +187,24 @@
                                     </DataTemplate>
                                 </Expander.HeaderTemplate>
 
-                                <ItemsControl Padding="0,2,0,2"
-                                              HorizontalContentAlignment="Stretch"
-                                              Background="#555555"
-                                              ItemsSource="{Binding Decks}">
+                                <ItemsControl HorizontalContentAlignment="Stretch" Background="Transparent" ItemsSource="{Binding Decks}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type models:Deck}">
-                                            <StackPanel Orientation="Horizontal">
+                                            <StackPanel Margin="0,1,0,0" Background="#b36200" Orientation="Horizontal">
                                                 <TextBlock Width="45"
                                                            VerticalAlignment="Center"
-                                                           FontSize="14"
-                                                           Foreground="White"
+                                                           FontFamily="pack://application:,,,/Resources/#Montserrat"
+                                                           FontSize="12"
                                                            Text="{Binding Placement}"
-                                                           TextAlignment="Right" />
+                                                           TextAlignment="Right"
+                                                           ToolTip="{Binding Name}" />
                                                 <TextBlock Width="240"
                                                            Margin="5,0,0,0"
                                                            VerticalAlignment="Center"
-                                                           FontSize="14"
-                                                           Foreground="White"
+                                                           FontWeight="SemiBold"
                                                            Text="{Binding Name}"
                                                            TextTrimming="CharacterEllipsis"
-                                                           ToolTip="{Binding Name}" />
+                                                           ToolTip="{Binding Name, Converter={x:Static converters:StringToUpperCaseStringConverter.Default}}" />
                                                 <Button HorizontalContentAlignment="Center"
                                                         VerticalContentAlignment="Center"
                                                         Command="{Binding DataContext.ExportDeckCommand, ElementName=Root}"
@@ -239,7 +243,7 @@
             <TextBlock Grid.Row="2"
                        Grid.ColumnSpan="3"
                        Margin="5"
-                       FontFamily="pack://application:,,,/Resources/#Righteous"
+                       FontFamily="pack://application:,,,/Resources/#Montserrat"
                        FontSize="14"
                        Foreground="White"
                        Text="{Binding Notification}"

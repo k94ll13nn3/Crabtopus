@@ -33,7 +33,7 @@ namespace Crabtopus.Services
         public async Task<IEnumerable<(int id, string name, int rating, DateTime date)>> GetTournamentsAsync()
         {
             string address = $"https://{BaseUrl}/format?f=ST";
-            IDocument document = await _context.OpenAsync(address);
+            IDocument document = await _context.OpenAsync(address).ConfigureAwait(false);
             const string eventsSelector =
                 ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(3) > tbody:nth-child(1) > tr:not(:first-child)," +
                 ".page > div:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(2) > table:nth-child(1) > tbody:nth-child(1) > tr:not(:first-child)";
@@ -63,7 +63,7 @@ namespace Crabtopus.Services
         public async Task<ICollection<Deck>> GetDecksAsync(int eventId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&f=ST";
-            IDocument document = await _context.OpenAsync(address);
+            IDocument document = await _context.OpenAsync(address).ConfigureAwait(false);
             const string cellSelector = "div.chosen_tr, div.hover_tr";
             IHtmlCollection<IElement> cells = document.QuerySelectorAll(cellSelector);
             var decks = new List<Deck>();
@@ -76,7 +76,7 @@ namespace Crabtopus.Services
                     int id = int.Parse(HttpUtility.ParseQueryString(new Uri($"https://{BaseUrl}/{link.GetAttribute("href")}").Query)["d"], CultureInfo.InvariantCulture);
                     string name = link.TextContent;
                     string user = cell.QuerySelector("div:nth-child(3)").TextContent;
-                    ICollection<DeckCard> cards = await GetDeckAsync(eventId, id);
+                    ICollection<DeckCard> cards = await GetDeckAsync(eventId, id).ConfigureAwait(false);
                     decks.Add(new Deck
                     {
                         Cards = cards,
@@ -95,7 +95,7 @@ namespace Crabtopus.Services
         private async Task<ICollection<DeckCard>> GetDeckAsync(int eventId, int deckId)
         {
             string address = $"https://{BaseUrl}/event?e={eventId}&d={deckId}&f=ST";
-            IDocument document = await _context.OpenAsync(address);
+            IDocument document = await _context.OpenAsync(address).ConfigureAwait(false);
             const string mainDeckSelector = "table.Stable:nth-child(3) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:not(:last-child) > table > tbody > tr > td > div:last-child";
             const string sideboardSelector = "table.Stable:nth-child(3) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(1) > td:last-child > table > tbody > tr > td > div:last-child";
             IHtmlCollection<IElement> mainDeckCells = document.QuerySelectorAll(mainDeckSelector);

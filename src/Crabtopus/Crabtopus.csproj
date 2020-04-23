@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\Righteous-Regular.ttf" />
+    <Resource Include="Resources\*.ttf" />
     <Resource Include="Resources\tray-icon.ico" />
   </ItemGroup>
 

@@ -21,6 +21,7 @@ namespace Crabtopus.ViewModels
         private string _title = "CRABTOPUS";
         private string _popupTitle = "Decks (0)";
         private string _notification = string.Empty;
+        private string _loadingText = string.Empty;
         private bool _displayPopup;
         private bool _loaded;
 
@@ -31,8 +32,8 @@ namespace Crabtopus.ViewModels
 
             ShowPopupCommand = new DelegateCommand(() => DisplayPopup = true);
             ClosePopupCommand = new DelegateCommand(() => DisplayPopup = false);
-            LoadCommand = new DelegateCommand(async () => await LoadAsync());
-            ReloadCommand = new DelegateCommand(async () => await ReloadAsync());
+            LoadCommand = new DelegateCommand(async () => await LoadAsync().ConfigureAwait(false));
+            ReloadCommand = new DelegateCommand(async () => await ReloadAsync().ConfigureAwait(false));
             ExportDeckCommand = new DelegateCommand<Deck>(ExportDeck);
         }
 
@@ -78,6 +79,12 @@ namespace Crabtopus.ViewModels
             set => SetProperty(ref _notification, value);
         }
 
+        public string LoadingText
+        {
+            get => _loadingText;
+            set => SetProperty(ref _loadingText, value);
+        }
+
         private void ExportDeck(Deck deck)
         {
             string exportedDeck = string.Join(Environment.NewLine, deck.Cards.Where(x => !x.IsSideboard).Select(x => $"{x.Count} {x.Card?.Name}"))
@@ -89,7 +96,7 @@ namespace Crabtopus.ViewModels
             Notification = "Copied!";
             Task.Run(async () =>
             {
-                await Task.Delay(1000);
+                await Task.Delay(1000).ConfigureAwait(false);
                 Notification = string.Empty;
             });
         }
@@ -103,7 +110,8 @@ namespace Crabtopus.ViewModels
                 .ThenInclude(d => d.Cards)
                 .ThenInclude(dc => dc.Card)
                 .OrderByDescending(t => t.Date)
-                .ToListAsync();
+                .ToListAsync()
+                .ConfigureAwait(false);
 
             Tournaments.Clear();
             foreach (Tournament tournament in tournaments)
@@ -156,13 +164,15 @@ namespace Crabtopus.ViewModels
             try
             {
                 Loaded = false;
-                ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync()).ToList();
+                ICollection<(int id, string name, int rating, DateTime date)> tournamentInfos = (await _fetchService.GetTournamentsAsync().ConfigureAwait(false)).ToList();
+                LoadingText = $"0/{tournamentInfos.Count}";
+                int i = 0;
                 foreach ((int id, string name, int rating, DateTime date) in tournamentInfos.OrderByDescending(t => t.date))
                 {
-                    Tournament? tournament = await _database.Tournaments.FirstOrDefaultAsync(x => x.Id == id);
+                    Tournament? tournament = await _database.Tournaments.FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
                     if (tournament is null)
                     {
-                        ICollection<Deck> decks = await _fetchService.GetDecksAsync(id);
+                        ICollection<Deck> decks = await _fetchService.GetDecksAsync(id).ConfigureAwait(false);
                         tournament = new Tournament
                         {
                             Id = id,
@@ -174,16 +184,19 @@ namespace Crabtopus.ViewModels
                         _database.Tournaments.Add(tournament);
                         _database.SaveChanges();
                     }
+
+                    i++;
+                    LoadingText = $"{i}/{tournamentInfos.Count}";
                 }
             }
             catch (Exception)
             {
                 Notification = "Error while fetching decks!";
-                await Task.Delay(1000);
+                await Task.Delay(1000).ConfigureAwait(false);
                 Notification = string.Empty;
             }
 
-            await LoadAsync();
+            await LoadAsync().ConfigureAwait(false);
         }
     }
 }
