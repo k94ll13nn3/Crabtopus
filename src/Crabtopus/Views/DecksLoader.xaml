@@ -163,7 +163,6 @@
                                       BorderThickness="0,2,0,0"
                                       ExpandDirection="Down"
                                       FontFamily="pack://application:,,,/Resources/#Montserrat"
-                                      FontSize="15"
                                       Foreground="White"
                                       Header="{Binding}"
                                       Style="{DynamicResource ExpanderStyle}">
@@ -178,7 +177,7 @@
                                             <TextBlock Width="290"
                                                        Margin="5,0,0,0"
                                                        VerticalAlignment="Center"
-                                                       FontSize="16"
+                                                       FontSize="14"
                                                        Foreground="White"
                                                        Text="{Binding Name}"
                                                        TextTrimming="CharacterEllipsis"
@@ -190,7 +189,7 @@
                                 <ItemsControl HorizontalContentAlignment="Stretch" Background="Transparent" ItemsSource="{Binding Decks}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type models:Deck}">
-                                            <StackPanel Margin="0,1,0,0" Background="#b36200" Orientation="Horizontal">
+                                            <StackPanel Margin="0,1,0,0" Background="#b36200" Orientation="Horizontal" Height="27">
                                                 <TextBlock Width="45"
                                                            VerticalAlignment="Center"
                                                            FontFamily="pack://application:,,,/Resources/#Montserrat"
@@ -201,10 +200,11 @@
                                                 <TextBlock Width="240"
                                                            Margin="5,0,0,0"
                                                            VerticalAlignment="Center"
+                                                           FontSize="15"
                                                            FontWeight="SemiBold"
-                                                           Text="{Binding Name}"
+                                                           Text="{Binding Name, Converter={x:Static converters:StringToUpperCaseStringConverter.Default}}"
                                                            TextTrimming="CharacterEllipsis"
-                                                           ToolTip="{Binding Name, Converter={x:Static converters:StringToUpperCaseStringConverter.Default}}" />
+                                                           ToolTip="{Binding Name}" />
                                                 <Button HorizontalContentAlignment="Center"
                                                         VerticalContentAlignment="Center"
                                                         Command="{Binding DataContext.ExportDeckCommand, ElementName=Root}"

@@ -75,7 +75,7 @@ namespace Crabtopus
 
             // Read cards.
             CardReader cardManager = _serviceProvider.GetService<CardReader>();
-            await cardManager.LoadCardsAsync().ConfigureAwait(false);
+            await cardManager.LoadCardsAsync();
 
             // Initialize tray icon.
             _taskbarIcon = LoadTaskbarIcon();

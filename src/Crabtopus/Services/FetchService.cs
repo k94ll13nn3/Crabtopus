@@ -148,7 +148,7 @@ namespace Crabtopus.Services
                     Method = request.Method,
                 };
 
-                foreach (var header in request.Headers)
+                foreach (KeyValuePair<string, string> header in request.Headers)
                 {
                     data.Headers[header.Key] = header.Value;
                 }
