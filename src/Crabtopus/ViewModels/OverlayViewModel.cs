@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +23,7 @@ namespace Crabtopus.ViewModels
         private string _loadingText = string.Empty;
         private bool _displayPopup;
         private bool _loaded;
+        private IEnumerable<Tournament> _tournaments = new List<Tournament>();
 
         public OverlayViewModel(IFetchService fetchService, Database database)
         {
@@ -37,7 +37,11 @@ namespace Crabtopus.ViewModels
             ExportDeckCommand = new DelegateCommand<Deck>(ExportDeck);
         }
 
-        public ObservableCollection<Tournament> Tournaments { get; } = new ObservableCollection<Tournament>();
+        public IEnumerable<Tournament> Tournaments
+        {
+            get => _tournaments;
+            set => SetProperty(ref _tournaments, value);
+        }
 
         public ICommand ShowPopupCommand { get; set; }
 
@@ -113,7 +117,7 @@ namespace Crabtopus.ViewModels
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            Tournaments.Clear();
+            var fortmattedTournaments = new List<Tournament>();
             foreach (Tournament tournament in tournaments)
             {
                 tournament.Decks = tournament.Decks.OrderBy(x => x.Placement).ToList();
@@ -136,10 +140,12 @@ namespace Crabtopus.ViewModels
                     deck.GroupedCards = groupedCards;
                 }
 
-                Tournaments.Add(tournament);
+                fortmattedTournaments.Add(tournament);
             }
 
-            PopupTitle = $"Decks ({Tournaments.Count})";
+            Tournaments = fortmattedTournaments;
+
+            PopupTitle = $"Decks ({fortmattedTournaments.Count})";
             Loaded = true;
 
             static int GetTypePriority(CardType cardType)
