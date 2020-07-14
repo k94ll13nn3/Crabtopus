@@ -68,7 +68,7 @@ namespace Crabtopus.Data
             return Blobs.First(x => x.Method == "GetCombinedRankInfo");
         }
 
-        private string GetEndpoint(in ReadOnlySpan<char> content)
+        private static string GetEndpoint(in ReadOnlySpan<char> content)
         {
             int startIndex = content.IndexOf(EndpointDelimiter) + EndpointDelimiter.Length;
             int length = 0;
@@ -80,7 +80,7 @@ namespace Crabtopus.Data
             return content.Slice(startIndex, length).ToString();
         }
 
-        private List<Blob> GetBlobs(in ReadOnlySpan<char> content)
+        private static List<Blob> GetBlobs(in ReadOnlySpan<char> content)
         {
             var blobs = new List<Blob>();
             int currentIndex = 0;

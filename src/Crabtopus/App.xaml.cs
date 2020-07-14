@@ -75,9 +75,9 @@ namespace Crabtopus
 
             // Read cards.
             CardReader cardManager = _serviceProvider.GetService<CardReader>();
-#pragma warning disable CA2007 // Cannot use .ConfigureAwait(false) here
+#pragma warning disable CA2007, RCS1090 // Cannot use .ConfigureAwait(false) here
             await cardManager.LoadCardsAsync();
-#pragma warning restore CA2007
+#pragma warning restore CA2007, RCS1090
 
             // Initialize tray icon.
             _taskbarIcon = LoadTaskbarIcon();
