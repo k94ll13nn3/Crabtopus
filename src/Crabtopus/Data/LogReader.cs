@@ -18,7 +18,7 @@ namespace Crabtopus.Data
 
         public LogReader()
         {
-            string logFilePath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low\Wizards Of The Coast\MTGA\output_log.txt";
+            string logFilePath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}Low\Wizards Of The Coast\MTGA\Player.log";
             if (!File.Exists(logFilePath))
             {
                 throw new InvalidOperationException($"Log file not found ({logFilePath}).");
